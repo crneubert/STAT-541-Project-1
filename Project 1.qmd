@@ -3,6 +3,8 @@ title: "Project 1"
 author: "Carson Neubert"
 format: html
 editor: visual
+embed-resources: true
+message: false
 ---
 
 ## Loading in the Data
@@ -12,3 +14,31 @@ editor: visual
 cases_month <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-06-24/cases_month.csv')
 cases_year <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-06-24/cases_year.csv')
 ```
+
+## Data Description
+
+The following data concerns measles and rubella cases. The data was from the World Health Organization between 2012 and June 6, 2025. This includes monthly and yearly data across several countries and regions. The data is provisional and is early case reports by WHO member countries. The data contains several types of case confirmations (suspected, clinical, epidemiologically linked, and lab confirmed) as well as population count data in the yearly data set.
+
+## Cleaning Performed
+
+The given CSVs are cleaned mostly through formatting and data type conversions. The first row is entirely variable names and each of those names have been standardized into all lowercase with underscores. Numeric columns, such as year and all of the case counts, were converted into numeric variables from strings.
+
+## Research Questions
+
+**To be answered by the data:**
+
+-   How does the volume of measles cases change over time?
+
+-   Which areas of the world contribute the most to measles cases?
+
+**To be answered using supplemental data:**
+
+-   How does vaccination rates affect measles cases by country? (using vaccination data sets likely from WHO)
+
+-   Are measles case rates correlated with GPD and development level of a country? (get GDP and country data from somewhere like gapminder)
+
+## Sketches of Possible Plots
+
+![](images/861248618234.png){fig-align="center"}
+
+![](images/082450803485092345.png)
