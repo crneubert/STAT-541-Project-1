@@ -17,11 +17,11 @@ cases_year <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience
 
 ## Data Description
 
-The following data concerns measles and rubella cases. The data was from the World Health Organization between 2012 and June 6, 2025. This includes monthly and yearly data across several countries and regions. The data is provisional and is early case reports by WHO member countries. The data contains several types of case confirmations (suspected, clinical, epidemiologically linked, and lab confirmed) as well as population count data in the yearly data set.
+The following data concerns measles and rubella cases. The data was from the World Health Organization (WHO) between 2012 and June 6, 2025. This includes monthly and yearly data across multiple countries grouped into WHO regions, where each row corresponds to a specific country within a region. The data is provisional and is early case reports by WHO member countries collected using each countries national surveillance systems. The data contains several types of case confirmations (suspected, clinical, epidemiologically linked, and lab confirmed) as well as population count data in the yearly data set. The data was collected to monitor measles and rubella cases worldwide in order to support public health decision making and vaccination strategies.
 
 ## Cleaning Performed
 
-The given CSVs are cleaned mostly through formatting and data type conversions. The first row is entirely variable names and each of those names have been standardized into all lowercase with underscores. Numeric columns, such as year and all of the case counts, were converted into numeric variables from strings.
+The given CSVs are cleaned mostly through formatting and data type conversions. All variable names have been standardized into all lowercase with underscores. In the cases_month dataset, numeric variables were converted from a string to have a proper numeric type. In cases_year dataset, the first row was removed because it contained a duplicate header. Column names were also changed for simplicity (iso_country_code -\> iso3 for example). Additionally, the dataset contains derived variables such as total measles and rubella cases and incidence rates per 100000 people.
 
 ## Research Questions
 
