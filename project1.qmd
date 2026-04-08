@@ -1,6 +1,6 @@
 ---
 title: "Project 1"
-author: "Carson Neubert, Ben Parker"
+author: "Carson Neubert, Ben Parker, Minh Ho-Hoang"
 format: 
   html:
     embed-resources: true
