@@ -1,0 +1,187 @@
+---
+title: "Project 1"
+author: "Carson Neubert, Ben Parker"
+format: 
+  html:
+    embed-resources: true
+    code-tools: true
+    page-layout: full
+editor: visual
+execute:
+  message: false
+  warning: false
+---
+
+## Table of Contents:
+- [Week 1](#week-1)   
+- [Week 2](#week-2)
+
+
+## Load Libraries   
+
+```{r}
+library(tidyverse)
+library(gt)
+
+```
+
+# Week 1 {#week-1}    
+
+## Loading in the Data
+
+```{r}
+# reading in from github
+cases_month <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-06-24/cases_month.csv')
+cases_year <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-06-24/cases_year.csv')
+```
+
+
+## Data Description
+
+The following data concerns measles and rubella cases. The data was from the World Health Organization (WHO) between 2012 and June 6, 2025. This includes monthly and yearly data across multiple countries grouped into WHO regions, where each row corresponds to a specific country within a region. The data is provisional and is early case reports by WHO member countries collected using each countries national surveillance systems. The data contains several types of case confirmations (suspected, clinical, epidemiologically linked, and lab confirmed) as well as population count data in the yearly data set. The data was collected to monitor measles and rubella cases worldwide in order to support public health decision making and vaccination strategies.
+
+- [Data source](https://github.com/rfordatascience/tidytuesday/blob/main/data/2025/2025-06-24/readme.md) 
+
+
+## Cleaning Performed
+
+The given CSVs are cleaned mostly through formatting and data type conversions. All variable names have been standardized into all lowercase with underscores. In the cases_month dataset, numeric variables were converted from a string to have a proper numeric type. In cases_year dataset, the first row was removed because it contained a duplicate header. Column names were also changed for simplicity (iso_country_code -\> iso3 for example). Additionally, the dataset contains derived variables such as total measles and rubella cases and incidence rates per 100000 people.
+
+## Research Questions
+
+**To be answered by the data:**
+
+-   How does the volume of measles cases change over time?
+
+-   Which areas of the world contribute the most to measles cases?
+
+**To be answered using supplemental data:**
+
+-   How does vaccination rates affect measles cases by country? (using vaccination data sets likely from WHO)
+
+-   Are measles case rates correlated with GPD and development level of a country? (get GDP and country data from somewhere like gapminder)
+
+## Sketches of Possible Plots
+
+![](images/861248618234.png){fig-align="center"}
+
+![](images/082450803485092345.png)    
+
+
+# Week 2 {#week-2}   
+
+## Unmodified data summaries  
+
+**Summary 1**   
+- Using cases_month, across all years is there monthly variation in mean lab confirmed measels/rubella cases?  
+
+```{r}
+
+monthly_sums <- function(df, group) {
+  if (is.data.frame(df)) {
+    df2 <- df |>
+      group_by({{group}}) |>
+      summarize(
+                `Mean Measles Cases` = mean(measles_lab_confirmed, na.rm = TRUE),
+                `Mean Rubella Cases` = mean(rubella_lab_confirmed, na.rm = TRUE)) |>
+      pivot_longer(cols = c(`Mean Measles Cases`, `Mean Rubella Cases`),
+                   names_to =  "Statistic",
+                   values_to = "value") |>
+      pivot_wider(names_from = month,
+                  values_from = value) |>
+      gt() |>
+      tab_style(
+        style = cell_text(weight = "bold"),
+        locations = cells_column_labels()
+        ) |> 
+      tab_header(
+        title = md("Mean Lab Confirmed Measles and Rubella Cases Per Month")) |>
+      tab_source_note(
+          source_note = md("*Table 1: Mean monthly lab-confirmed measles and rubella cases over the course of the study (2012-2025).*")
+  ) |>
+      fmt_number(
+        columns  = where(is.numeric),
+        decimals = 1
+  )
+    return(df2)
+  } else {
+  'Must input a dataframe'
+  }
+}
+
+monthly_sums(cases_month, month) 
+
+```
+
+**Summary 2**   
+- Using measels_year, which regions of the world contribute the most to measles cases? (only looking at 2025)      
+
+
+```{r}
+
+region_burden <- function(region_name) {
+  cases_year |>
+    filter(year == 2025, region == region_name) |>
+    mutate(measles_total = as.numeric(measles_total)) |>
+    summarize(
+      region = region_name,
+      total_cases = sum(measles_total, na.rm = TRUE)
+    )
+}
+
+regions <- unique(cases_year$region)
+
+map(regions, region_burden) |>
+  bind_rows(.id="id") |> 
+  mutate(pct_global = round(total_cases / sum(total_cases) * 100, 1),
+         region = region |>
+           recode_values(
+                    "EMRO" ~ "Eastern Mediterranean",
+                    "AFRO" ~ "Africa",
+                    "EURO" ~ "Europe",
+                    "SEARO" ~ "South-East Asia",
+                    "AMRO" ~ "Americas",
+                    "WPRO" ~ "Western Pacific")) |>
+  arrange(desc(total_cases)) |>
+  select(!id) |>
+  gt() |>
+  tab_header(
+    title    = md("**Regional Measles Burden**"),
+    subtitle = "2025 Contribution to Global Total"
+  ) |>
+  cols_label(
+    region      = "Region",
+    total_cases = "Total Cases",
+    pct_global  = "% of Global Total"
+  ) |>
+  fmt_number(columns = total_cases, decimals = 0) |>
+  fmt_number(
+    columns  = pct_global,
+    decimals = 1,
+    pattern  = "{x}%"
+    ) |>
+  tab_style(
+    style     = cell_text(weight = "bold"),
+    locations = cells_column_labels()
+  ) |>
+  tab_source_note(
+    source_note = md("*Table 2: Total measles cases and share of global burden by WHO region, 2025.*")
+  ) 
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
