@@ -1,11 +1,28 @@
 ---
 title: "Project 1"
-author: "Carson Neubert"
-format: html
+author: "Carson Neubert, Ben Parker"
+format: 
+  html:
+    embed-resources: true
+    code-tools: true
 editor: visual
-embed-resources: true
 message: false
 ---
+
+## Table of Contents:
+- [Week 1](#Week-1)   
+- [Week 2](#Week-2)
+
+
+## Load Libraries   
+
+```{r}
+library(tidyverse)
+library(gt)
+
+```
+
+# Week 1
 
 ## Loading in the Data
 
@@ -41,4 +58,19 @@ The given CSVs are cleaned mostly through formatting and data type conversions. 
 
 ![](images/861248618234.png){fig-align="center"}
 
-![](images/082450803485092345.png)
+![](images/082450803485092345.png)    
+
+
+# Week 2  
+
+## Unmodified data summaries  
+
+- Using cases_month, is there monthly variation in the univariate statistics of lab confirmed measels/rubella cases?  
+
+```{r}
+
+
+```
+
+
+
