@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Carson Neubert, Ben Parker">
+<meta name="author" content="Carson Neubert, Ben Parker, Minh Ho-Hoang">
 
 <title>Project 1</title>
 <style>
@@ -2218,7 +2218,7 @@ vertical-align: -.125em;
     <div>
     <div class="quarto-title-meta-heading">Author</div>
     <div class="quarto-title-meta-contents">
-             <p>Carson Neubert, Ben Parker </p>
+             <p>Carson Neubert, Ben Parker, Minh Ho-Hoang </p>
           </div>
   </div>
     
@@ -2296,6 +2296,9 @@ vertical-align: -.125em;
 <h2 class="anchored" data-anchor-id="unmodified-data-summaries">Unmodified data summaries</h2>
 <p><strong>Summary 1</strong><br>
 - Using cases_month, across all years is there monthly variation in mean lab confirmed measels/rubella cases?</p>
+<ul>
+<li>Use of unmodified column, custom function</li>
+</ul>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>monthly_sums <span class="ot">&lt;-</span> <span class="cf">function</span>(df, group) {</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">is.data.frame</span>(df)) {</span>
@@ -2331,20 +2334,20 @@ vertical-align: -.125em;
 <span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a><span class="fu">monthly_sums</span>(cases_month, month) </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="ajoilytjvc" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#ajoilytjvc table {
+<div id="alsnvricim" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#alsnvricim table {
 font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 -webkit-font-smoothing: antialiased;
 -moz-osx-font-smoothing: grayscale;
 }
-#ajoilytjvc thead, #ajoilytjvc tbody, #ajoilytjvc tfoot, #ajoilytjvc tr, #ajoilytjvc td, #ajoilytjvc th {
+#alsnvricim thead, #alsnvricim tbody, #alsnvricim tfoot, #alsnvricim tr, #alsnvricim td, #alsnvricim th {
 border-style: none;
 }
-#ajoilytjvc p {
+#alsnvricim p {
 margin: 0;
 padding: 0;
 }
-#ajoilytjvc .gt_table {
+#alsnvricim .gt_table {
 display: table;
 border-collapse: collapse;
 line-height: normal;
@@ -2369,11 +2372,11 @@ border-left-style: none;
 border-left-width: 2px;
 border-left-color: #D3D3D3;
 }
-#ajoilytjvc .gt_caption {
+#alsnvricim .gt_caption {
 padding-top: 4px;
 padding-bottom: 4px;
 }
-#ajoilytjvc .gt_title {
+#alsnvricim .gt_title {
 color: #333333;
 font-size: 125%;
 font-weight: initial;
@@ -2384,7 +2387,7 @@ padding-right: 5px;
 border-bottom-color: #FFFFFF;
 border-bottom-width: 0;
 }
-#ajoilytjvc .gt_subtitle {
+#alsnvricim .gt_subtitle {
 color: #333333;
 font-size: 85%;
 font-weight: initial;
@@ -2395,7 +2398,7 @@ padding-right: 5px;
 border-top-color: #FFFFFF;
 border-top-width: 0;
 }
-#ajoilytjvc .gt_heading {
+#alsnvricim .gt_heading {
 background-color: #FFFFFF;
 text-align: center;
 border-bottom-color: #FFFFFF;
@@ -2406,12 +2409,12 @@ border-right-style: none;
 border-right-width: 1px;
 border-right-color: #D3D3D3;
 }
-#ajoilytjvc .gt_bottom_border {
+#alsnvricim .gt_bottom_border {
 border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 }
-#ajoilytjvc .gt_col_headings {
+#alsnvricim .gt_col_headings {
 border-top-style: solid;
 border-top-width: 2px;
 border-top-color: #D3D3D3;
@@ -2425,7 +2428,7 @@ border-right-style: none;
 border-right-width: 1px;
 border-right-color: #D3D3D3;
 }
-#ajoilytjvc .gt_col_heading {
+#alsnvricim .gt_col_heading {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -2444,7 +2447,7 @@ padding-left: 5px;
 padding-right: 5px;
 overflow-x: hidden;
 }
-#ajoilytjvc .gt_column_spanner_outer {
+#alsnvricim .gt_column_spanner_outer {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -2455,13 +2458,13 @@ padding-bottom: 0;
 padding-left: 4px;
 padding-right: 4px;
 }
-#ajoilytjvc .gt_column_spanner_outer:first-child {
+#alsnvricim .gt_column_spanner_outer:first-child {
 padding-left: 0;
 }
-#ajoilytjvc .gt_column_spanner_outer:last-child {
+#alsnvricim .gt_column_spanner_outer:last-child {
 padding-right: 0;
 }
-#ajoilytjvc .gt_column_spanner {
+#alsnvricim .gt_column_spanner {
 border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
@@ -2472,10 +2475,10 @@ overflow-x: hidden;
 display: inline-block;
 width: 100%;
 }
-#ajoilytjvc .gt_spanner_row {
+#alsnvricim .gt_spanner_row {
 border-bottom-style: hidden;
 }
-#ajoilytjvc .gt_group_heading {
+#alsnvricim .gt_group_heading {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -2500,7 +2503,7 @@ border-right-color: #D3D3D3;
 vertical-align: middle;
 text-align: left;
 }
-#ajoilytjvc .gt_empty_group_heading {
+#alsnvricim .gt_empty_group_heading {
 padding: 0.5px;
 color: #333333;
 background-color: #FFFFFF;
@@ -2514,13 +2517,13 @@ border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 vertical-align: middle;
 }
-#ajoilytjvc .gt_from_md > :first-child {
+#alsnvricim .gt_from_md > :first-child {
 margin-top: 0;
 }
-#ajoilytjvc .gt_from_md > :last-child {
+#alsnvricim .gt_from_md > :last-child {
 margin-bottom: 0;
 }
-#ajoilytjvc .gt_row {
+#alsnvricim .gt_row {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -2538,7 +2541,7 @@ border-right-color: #D3D3D3;
 vertical-align: middle;
 overflow-x: hidden;
 }
-#ajoilytjvc .gt_stub {
+#alsnvricim .gt_stub {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -2550,7 +2553,7 @@ border-right-color: #D3D3D3;
 padding-left: 5px;
 padding-right: 5px;
 }
-#ajoilytjvc .gt_stub_row_group {
+#alsnvricim .gt_stub_row_group {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -2563,13 +2566,13 @@ padding-left: 5px;
 padding-right: 5px;
 vertical-align: top;
 }
-#ajoilytjvc .gt_row_group_first td {
+#alsnvricim .gt_row_group_first td {
 border-top-width: 2px;
 }
-#ajoilytjvc .gt_row_group_first th {
+#alsnvricim .gt_row_group_first th {
 border-top-width: 2px;
 }
-#ajoilytjvc .gt_summary_row {
+#alsnvricim .gt_summary_row {
 color: #333333;
 background-color: #FFFFFF;
 text-transform: inherit;
@@ -2578,14 +2581,14 @@ padding-bottom: 8px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#ajoilytjvc .gt_first_summary_row {
+#alsnvricim .gt_first_summary_row {
 border-top-style: solid;
 border-top-color: #D3D3D3;
 }
-#ajoilytjvc .gt_first_summary_row.thick {
+#alsnvricim .gt_first_summary_row.thick {
 border-top-width: 2px;
 }
-#ajoilytjvc .gt_last_summary_row {
+#alsnvricim .gt_last_summary_row {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -2594,7 +2597,7 @@ border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 }
-#ajoilytjvc .gt_grand_summary_row {
+#alsnvricim .gt_grand_summary_row {
 color: #333333;
 background-color: #FFFFFF;
 text-transform: inherit;
@@ -2603,7 +2606,7 @@ padding-bottom: 8px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#ajoilytjvc .gt_first_grand_summary_row {
+#alsnvricim .gt_first_grand_summary_row {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -2612,7 +2615,7 @@ border-top-style: double;
 border-top-width: 6px;
 border-top-color: #D3D3D3;
 }
-#ajoilytjvc .gt_last_grand_summary_row_top {
+#alsnvricim .gt_last_grand_summary_row_top {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -2621,10 +2624,10 @@ border-bottom-style: double;
 border-bottom-width: 6px;
 border-bottom-color: #D3D3D3;
 }
-#ajoilytjvc .gt_striped {
+#alsnvricim .gt_striped {
 background-color: rgba(128, 128, 128, 0.05);
 }
-#ajoilytjvc .gt_table_body {
+#alsnvricim .gt_table_body {
 border-top-style: solid;
 border-top-width: 2px;
 border-top-color: #D3D3D3;
@@ -2632,7 +2635,7 @@ border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 }
-#ajoilytjvc .gt_footnotes {
+#alsnvricim .gt_footnotes {
 color: #333333;
 background-color: #FFFFFF;
 border-bottom-style: none;
@@ -2645,7 +2648,7 @@ border-right-style: none;
 border-right-width: 2px;
 border-right-color: #D3D3D3;
 }
-#ajoilytjvc .gt_footnote {
+#alsnvricim .gt_footnote {
 margin: 0px;
 font-size: 90%;
 padding-top: 4px;
@@ -2653,7 +2656,7 @@ padding-bottom: 4px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#ajoilytjvc .gt_sourcenotes {
+#alsnvricim .gt_sourcenotes {
 color: #333333;
 background-color: #FFFFFF;
 border-bottom-style: none;
@@ -2666,64 +2669,64 @@ border-right-style: none;
 border-right-width: 2px;
 border-right-color: #D3D3D3;
 }
-#ajoilytjvc .gt_sourcenote {
+#alsnvricim .gt_sourcenote {
 font-size: 90%;
 padding-top: 4px;
 padding-bottom: 4px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#ajoilytjvc .gt_left {
+#alsnvricim .gt_left {
 text-align: left;
 }
-#ajoilytjvc .gt_center {
+#alsnvricim .gt_center {
 text-align: center;
 }
-#ajoilytjvc .gt_right {
+#alsnvricim .gt_right {
 text-align: right;
 font-variant-numeric: tabular-nums;
 }
-#ajoilytjvc .gt_font_normal {
+#alsnvricim .gt_font_normal {
 font-weight: normal;
 }
-#ajoilytjvc .gt_font_bold {
+#alsnvricim .gt_font_bold {
 font-weight: bold;
 }
-#ajoilytjvc .gt_font_italic {
+#alsnvricim .gt_font_italic {
 font-style: italic;
 }
-#ajoilytjvc .gt_super {
+#alsnvricim .gt_super {
 font-size: 65%;
 }
-#ajoilytjvc .gt_footnote_marks {
+#alsnvricim .gt_footnote_marks {
 font-size: 75%;
 vertical-align: 0.4em;
 position: initial;
 }
-#ajoilytjvc .gt_asterisk {
+#alsnvricim .gt_asterisk {
 font-size: 100%;
 vertical-align: 0;
 }
-#ajoilytjvc .gt_indent_1 {
+#alsnvricim .gt_indent_1 {
 text-indent: 5px;
 }
-#ajoilytjvc .gt_indent_2 {
+#alsnvricim .gt_indent_2 {
 text-indent: 10px;
 }
-#ajoilytjvc .gt_indent_3 {
+#alsnvricim .gt_indent_3 {
 text-indent: 15px;
 }
-#ajoilytjvc .gt_indent_4 {
+#alsnvricim .gt_indent_4 {
 text-indent: 20px;
 }
-#ajoilytjvc .gt_indent_5 {
+#alsnvricim .gt_indent_5 {
 text-indent: 25px;
 }
-#ajoilytjvc .katex-display {
+#alsnvricim .katex-display {
 display: inline-flex !important;
 margin-bottom: 0.75em !important;
 }
-#ajoilytjvc div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#alsnvricim div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
 height: 0px !important;
 }
 </style>
@@ -2793,6 +2796,9 @@ height: 0px !important;
 </div>
 <p><strong>Summary 2</strong><br>
 - Using measels_year, which regions of the world contribute the most to measles cases? (only looking at 2025)</p>
+<ul>
+<li>Use of custom function, iteration, 1 unmodified column, 1 modified column</li>
+</ul>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>region_burden <span class="ot">&lt;-</span> <span class="cf">function</span>(region_name) {</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  cases_year <span class="sc">|&gt;</span></span>
@@ -2843,20 +2849,20 @@ height: 0px !important;
 <span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>    <span class="at">source_note =</span> <span class="fu">md</span>(<span class="st">&quot;*Table 2: Total measles cases and share of global burden by WHO region, 2025.*&quot;</span>)</span>
 <span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>  ) </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="fytijxkyzq" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#fytijxkyzq table {
+<div id="lerjviygsz" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#lerjviygsz table {
 font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 -webkit-font-smoothing: antialiased;
 -moz-osx-font-smoothing: grayscale;
 }
-#fytijxkyzq thead, #fytijxkyzq tbody, #fytijxkyzq tfoot, #fytijxkyzq tr, #fytijxkyzq td, #fytijxkyzq th {
+#lerjviygsz thead, #lerjviygsz tbody, #lerjviygsz tfoot, #lerjviygsz tr, #lerjviygsz td, #lerjviygsz th {
 border-style: none;
 }
-#fytijxkyzq p {
+#lerjviygsz p {
 margin: 0;
 padding: 0;
 }
-#fytijxkyzq .gt_table {
+#lerjviygsz .gt_table {
 display: table;
 border-collapse: collapse;
 line-height: normal;
@@ -2881,11 +2887,11 @@ border-left-style: none;
 border-left-width: 2px;
 border-left-color: #D3D3D3;
 }
-#fytijxkyzq .gt_caption {
+#lerjviygsz .gt_caption {
 padding-top: 4px;
 padding-bottom: 4px;
 }
-#fytijxkyzq .gt_title {
+#lerjviygsz .gt_title {
 color: #333333;
 font-size: 125%;
 font-weight: initial;
@@ -2896,7 +2902,7 @@ padding-right: 5px;
 border-bottom-color: #FFFFFF;
 border-bottom-width: 0;
 }
-#fytijxkyzq .gt_subtitle {
+#lerjviygsz .gt_subtitle {
 color: #333333;
 font-size: 85%;
 font-weight: initial;
@@ -2907,7 +2913,7 @@ padding-right: 5px;
 border-top-color: #FFFFFF;
 border-top-width: 0;
 }
-#fytijxkyzq .gt_heading {
+#lerjviygsz .gt_heading {
 background-color: #FFFFFF;
 text-align: center;
 border-bottom-color: #FFFFFF;
@@ -2918,12 +2924,12 @@ border-right-style: none;
 border-right-width: 1px;
 border-right-color: #D3D3D3;
 }
-#fytijxkyzq .gt_bottom_border {
+#lerjviygsz .gt_bottom_border {
 border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 }
-#fytijxkyzq .gt_col_headings {
+#lerjviygsz .gt_col_headings {
 border-top-style: solid;
 border-top-width: 2px;
 border-top-color: #D3D3D3;
@@ -2937,7 +2943,7 @@ border-right-style: none;
 border-right-width: 1px;
 border-right-color: #D3D3D3;
 }
-#fytijxkyzq .gt_col_heading {
+#lerjviygsz .gt_col_heading {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -2956,7 +2962,7 @@ padding-left: 5px;
 padding-right: 5px;
 overflow-x: hidden;
 }
-#fytijxkyzq .gt_column_spanner_outer {
+#lerjviygsz .gt_column_spanner_outer {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -2967,13 +2973,13 @@ padding-bottom: 0;
 padding-left: 4px;
 padding-right: 4px;
 }
-#fytijxkyzq .gt_column_spanner_outer:first-child {
+#lerjviygsz .gt_column_spanner_outer:first-child {
 padding-left: 0;
 }
-#fytijxkyzq .gt_column_spanner_outer:last-child {
+#lerjviygsz .gt_column_spanner_outer:last-child {
 padding-right: 0;
 }
-#fytijxkyzq .gt_column_spanner {
+#lerjviygsz .gt_column_spanner {
 border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
@@ -2984,10 +2990,10 @@ overflow-x: hidden;
 display: inline-block;
 width: 100%;
 }
-#fytijxkyzq .gt_spanner_row {
+#lerjviygsz .gt_spanner_row {
 border-bottom-style: hidden;
 }
-#fytijxkyzq .gt_group_heading {
+#lerjviygsz .gt_group_heading {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -3012,7 +3018,7 @@ border-right-color: #D3D3D3;
 vertical-align: middle;
 text-align: left;
 }
-#fytijxkyzq .gt_empty_group_heading {
+#lerjviygsz .gt_empty_group_heading {
 padding: 0.5px;
 color: #333333;
 background-color: #FFFFFF;
@@ -3026,13 +3032,13 @@ border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 vertical-align: middle;
 }
-#fytijxkyzq .gt_from_md > :first-child {
+#lerjviygsz .gt_from_md > :first-child {
 margin-top: 0;
 }
-#fytijxkyzq .gt_from_md > :last-child {
+#lerjviygsz .gt_from_md > :last-child {
 margin-bottom: 0;
 }
-#fytijxkyzq .gt_row {
+#lerjviygsz .gt_row {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -3050,7 +3056,7 @@ border-right-color: #D3D3D3;
 vertical-align: middle;
 overflow-x: hidden;
 }
-#fytijxkyzq .gt_stub {
+#lerjviygsz .gt_stub {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -3062,7 +3068,7 @@ border-right-color: #D3D3D3;
 padding-left: 5px;
 padding-right: 5px;
 }
-#fytijxkyzq .gt_stub_row_group {
+#lerjviygsz .gt_stub_row_group {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -3075,13 +3081,13 @@ padding-left: 5px;
 padding-right: 5px;
 vertical-align: top;
 }
-#fytijxkyzq .gt_row_group_first td {
+#lerjviygsz .gt_row_group_first td {
 border-top-width: 2px;
 }
-#fytijxkyzq .gt_row_group_first th {
+#lerjviygsz .gt_row_group_first th {
 border-top-width: 2px;
 }
-#fytijxkyzq .gt_summary_row {
+#lerjviygsz .gt_summary_row {
 color: #333333;
 background-color: #FFFFFF;
 text-transform: inherit;
@@ -3090,14 +3096,14 @@ padding-bottom: 8px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#fytijxkyzq .gt_first_summary_row {
+#lerjviygsz .gt_first_summary_row {
 border-top-style: solid;
 border-top-color: #D3D3D3;
 }
-#fytijxkyzq .gt_first_summary_row.thick {
+#lerjviygsz .gt_first_summary_row.thick {
 border-top-width: 2px;
 }
-#fytijxkyzq .gt_last_summary_row {
+#lerjviygsz .gt_last_summary_row {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -3106,7 +3112,7 @@ border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 }
-#fytijxkyzq .gt_grand_summary_row {
+#lerjviygsz .gt_grand_summary_row {
 color: #333333;
 background-color: #FFFFFF;
 text-transform: inherit;
@@ -3115,7 +3121,7 @@ padding-bottom: 8px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#fytijxkyzq .gt_first_grand_summary_row {
+#lerjviygsz .gt_first_grand_summary_row {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -3124,7 +3130,7 @@ border-top-style: double;
 border-top-width: 6px;
 border-top-color: #D3D3D3;
 }
-#fytijxkyzq .gt_last_grand_summary_row_top {
+#lerjviygsz .gt_last_grand_summary_row_top {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -3133,10 +3139,10 @@ border-bottom-style: double;
 border-bottom-width: 6px;
 border-bottom-color: #D3D3D3;
 }
-#fytijxkyzq .gt_striped {
+#lerjviygsz .gt_striped {
 background-color: rgba(128, 128, 128, 0.05);
 }
-#fytijxkyzq .gt_table_body {
+#lerjviygsz .gt_table_body {
 border-top-style: solid;
 border-top-width: 2px;
 border-top-color: #D3D3D3;
@@ -3144,7 +3150,7 @@ border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 }
-#fytijxkyzq .gt_footnotes {
+#lerjviygsz .gt_footnotes {
 color: #333333;
 background-color: #FFFFFF;
 border-bottom-style: none;
@@ -3157,7 +3163,7 @@ border-right-style: none;
 border-right-width: 2px;
 border-right-color: #D3D3D3;
 }
-#fytijxkyzq .gt_footnote {
+#lerjviygsz .gt_footnote {
 margin: 0px;
 font-size: 90%;
 padding-top: 4px;
@@ -3165,7 +3171,7 @@ padding-bottom: 4px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#fytijxkyzq .gt_sourcenotes {
+#lerjviygsz .gt_sourcenotes {
 color: #333333;
 background-color: #FFFFFF;
 border-bottom-style: none;
@@ -3178,64 +3184,64 @@ border-right-style: none;
 border-right-width: 2px;
 border-right-color: #D3D3D3;
 }
-#fytijxkyzq .gt_sourcenote {
+#lerjviygsz .gt_sourcenote {
 font-size: 90%;
 padding-top: 4px;
 padding-bottom: 4px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#fytijxkyzq .gt_left {
+#lerjviygsz .gt_left {
 text-align: left;
 }
-#fytijxkyzq .gt_center {
+#lerjviygsz .gt_center {
 text-align: center;
 }
-#fytijxkyzq .gt_right {
+#lerjviygsz .gt_right {
 text-align: right;
 font-variant-numeric: tabular-nums;
 }
-#fytijxkyzq .gt_font_normal {
+#lerjviygsz .gt_font_normal {
 font-weight: normal;
 }
-#fytijxkyzq .gt_font_bold {
+#lerjviygsz .gt_font_bold {
 font-weight: bold;
 }
-#fytijxkyzq .gt_font_italic {
+#lerjviygsz .gt_font_italic {
 font-style: italic;
 }
-#fytijxkyzq .gt_super {
+#lerjviygsz .gt_super {
 font-size: 65%;
 }
-#fytijxkyzq .gt_footnote_marks {
+#lerjviygsz .gt_footnote_marks {
 font-size: 75%;
 vertical-align: 0.4em;
 position: initial;
 }
-#fytijxkyzq .gt_asterisk {
+#lerjviygsz .gt_asterisk {
 font-size: 100%;
 vertical-align: 0;
 }
-#fytijxkyzq .gt_indent_1 {
+#lerjviygsz .gt_indent_1 {
 text-indent: 5px;
 }
-#fytijxkyzq .gt_indent_2 {
+#lerjviygsz .gt_indent_2 {
 text-indent: 10px;
 }
-#fytijxkyzq .gt_indent_3 {
+#lerjviygsz .gt_indent_3 {
 text-indent: 15px;
 }
-#fytijxkyzq .gt_indent_4 {
+#lerjviygsz .gt_indent_4 {
 text-indent: 20px;
 }
-#fytijxkyzq .gt_indent_5 {
+#lerjviygsz .gt_indent_5 {
 text-indent: 25px;
 }
-#fytijxkyzq .katex-display {
+#lerjviygsz .katex-display {
 display: inline-flex !important;
 margin-bottom: 0.75em !important;
 }
-#fytijxkyzq div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#lerjviygsz div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
 height: 0px !important;
 }
 </style>
@@ -3756,7 +3762,7 @@ height: 0px !important;
   </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> &quot;Project 1&quot;</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> &quot;Carson Neubert, Ben Parker&quot;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> &quot;Carson Neubert, Ben Parker, Minh Ho-Hoang&quot;</span></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span><span class="co"> </span></span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">    embed-resources: true</span></span>
@@ -3829,103 +3835,103 @@ height: 0px !important;
 <span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a><span class="fu">## Unmodified data summaries  </span></span>
 <span id="cb5-78"><a href="#cb5-78" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-79"><a href="#cb5-79" aria-hidden="true" tabindex="-1"></a>**Summary 1**   </span>
-<span id="cb5-80"><a href="#cb5-80" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Using cases_month, across all years is there monthly variation in mean lab confirmed measels/rubella cases?  </span>
-<span id="cb5-81"><a href="#cb5-81" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-84"><a href="#cb5-84" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb5-85"><a href="#cb5-85" aria-hidden="true" tabindex="-1"></a>monthly_sums <span class="ot">&lt;-</span> <span class="cf">function</span>(df, group) {</span>
-<span id="cb5-86"><a href="#cb5-86" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">is.data.frame</span>(df)) {</span>
-<span id="cb5-87"><a href="#cb5-87" aria-hidden="true" tabindex="-1"></a>    df2 <span class="ot">&lt;-</span> df <span class="sc">|&gt;</span></span>
-<span id="cb5-88"><a href="#cb5-88" aria-hidden="true" tabindex="-1"></a>      <span class="fu">group_by</span>({{group}}) <span class="sc">|&gt;</span></span>
-<span id="cb5-89"><a href="#cb5-89" aria-hidden="true" tabindex="-1"></a>      <span class="fu">summarize</span>(</span>
-<span id="cb5-90"><a href="#cb5-90" aria-hidden="true" tabindex="-1"></a>                <span class="st">`</span><span class="at">Mean Measles Cases</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">mean</span>(measles_lab_confirmed, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb5-91"><a href="#cb5-91" aria-hidden="true" tabindex="-1"></a>                <span class="st">`</span><span class="at">Mean Rubella Cases</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">mean</span>(rubella_lab_confirmed, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb5-92"><a href="#cb5-92" aria-hidden="true" tabindex="-1"></a>      <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">c</span>(<span class="st">`</span><span class="at">Mean Measles Cases</span><span class="st">`</span>, <span class="st">`</span><span class="at">Mean Rubella Cases</span><span class="st">`</span>),</span>
-<span id="cb5-93"><a href="#cb5-93" aria-hidden="true" tabindex="-1"></a>                   <span class="at">names_to =</span>  <span class="st">&quot;Statistic&quot;</span>,</span>
-<span id="cb5-94"><a href="#cb5-94" aria-hidden="true" tabindex="-1"></a>                   <span class="at">values_to =</span> <span class="st">&quot;value&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb5-95"><a href="#cb5-95" aria-hidden="true" tabindex="-1"></a>      <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> month,</span>
-<span id="cb5-96"><a href="#cb5-96" aria-hidden="true" tabindex="-1"></a>                  <span class="at">values_from =</span> value) <span class="sc">|&gt;</span></span>
-<span id="cb5-97"><a href="#cb5-97" aria-hidden="true" tabindex="-1"></a>      <span class="fu">gt</span>() <span class="sc">|&gt;</span></span>
-<span id="cb5-98"><a href="#cb5-98" aria-hidden="true" tabindex="-1"></a>      <span class="fu">tab_style</span>(</span>
-<span id="cb5-99"><a href="#cb5-99" aria-hidden="true" tabindex="-1"></a>        <span class="at">style =</span> <span class="fu">cell_text</span>(<span class="at">weight =</span> <span class="st">&quot;bold&quot;</span>),</span>
-<span id="cb5-100"><a href="#cb5-100" aria-hidden="true" tabindex="-1"></a>        <span class="at">locations =</span> <span class="fu">cells_column_labels</span>()</span>
-<span id="cb5-101"><a href="#cb5-101" aria-hidden="true" tabindex="-1"></a>        ) <span class="sc">|&gt;</span> </span>
-<span id="cb5-102"><a href="#cb5-102" aria-hidden="true" tabindex="-1"></a>      <span class="fu">tab_header</span>(</span>
-<span id="cb5-103"><a href="#cb5-103" aria-hidden="true" tabindex="-1"></a>        <span class="at">title =</span> <span class="fu">md</span>(<span class="st">&quot;Mean Lab Confirmed Measles and Rubella Cases Per Month&quot;</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb5-104"><a href="#cb5-104" aria-hidden="true" tabindex="-1"></a>      <span class="fu">tab_source_note</span>(</span>
-<span id="cb5-105"><a href="#cb5-105" aria-hidden="true" tabindex="-1"></a>          <span class="at">source_note =</span> <span class="fu">md</span>(<span class="st">&quot;*Table 1: Mean monthly lab-confirmed measles and rubella cases over the course of the study (2012-2025).*&quot;</span>)</span>
-<span id="cb5-106"><a href="#cb5-106" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb5-107"><a href="#cb5-107" aria-hidden="true" tabindex="-1"></a>      <span class="fu">fmt_number</span>(</span>
-<span id="cb5-108"><a href="#cb5-108" aria-hidden="true" tabindex="-1"></a>        <span class="at">columns  =</span> <span class="fu">where</span>(is.numeric),</span>
-<span id="cb5-109"><a href="#cb5-109" aria-hidden="true" tabindex="-1"></a>        <span class="at">decimals =</span> <span class="dv">1</span></span>
-<span id="cb5-110"><a href="#cb5-110" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb5-111"><a href="#cb5-111" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(df2)</span>
-<span id="cb5-112"><a href="#cb5-112" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb5-113"><a href="#cb5-113" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;Must input a dataframe&#39;</span></span>
-<span id="cb5-114"><a href="#cb5-114" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb5-115"><a href="#cb5-115" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb5-116"><a href="#cb5-116" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-117"><a href="#cb5-117" aria-hidden="true" tabindex="-1"></a><span class="fu">monthly_sums</span>(cases_month, month) </span>
+<span id="cb5-80"><a href="#cb5-80" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Using cases_month, across all years is there monthly variation in mean lab confirmed measels/rubella cases? </span>
+<span id="cb5-81"><a href="#cb5-81" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-82"><a href="#cb5-82" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>Use of unmodified column, custom function   </span>
+<span id="cb5-83"><a href="#cb5-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-86"><a href="#cb5-86" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb5-87"><a href="#cb5-87" aria-hidden="true" tabindex="-1"></a>monthly_sums <span class="ot">&lt;-</span> <span class="cf">function</span>(df, group) {</span>
+<span id="cb5-88"><a href="#cb5-88" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">is.data.frame</span>(df)) {</span>
+<span id="cb5-89"><a href="#cb5-89" aria-hidden="true" tabindex="-1"></a>    df2 <span class="ot">&lt;-</span> df <span class="sc">|&gt;</span></span>
+<span id="cb5-90"><a href="#cb5-90" aria-hidden="true" tabindex="-1"></a>      <span class="fu">group_by</span>({{group}}) <span class="sc">|&gt;</span></span>
+<span id="cb5-91"><a href="#cb5-91" aria-hidden="true" tabindex="-1"></a>      <span class="fu">summarize</span>(</span>
+<span id="cb5-92"><a href="#cb5-92" aria-hidden="true" tabindex="-1"></a>                <span class="st">`</span><span class="at">Mean Measles Cases</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">mean</span>(measles_lab_confirmed, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb5-93"><a href="#cb5-93" aria-hidden="true" tabindex="-1"></a>                <span class="st">`</span><span class="at">Mean Rubella Cases</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">mean</span>(rubella_lab_confirmed, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb5-94"><a href="#cb5-94" aria-hidden="true" tabindex="-1"></a>      <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">c</span>(<span class="st">`</span><span class="at">Mean Measles Cases</span><span class="st">`</span>, <span class="st">`</span><span class="at">Mean Rubella Cases</span><span class="st">`</span>),</span>
+<span id="cb5-95"><a href="#cb5-95" aria-hidden="true" tabindex="-1"></a>                   <span class="at">names_to =</span>  <span class="st">&quot;Statistic&quot;</span>,</span>
+<span id="cb5-96"><a href="#cb5-96" aria-hidden="true" tabindex="-1"></a>                   <span class="at">values_to =</span> <span class="st">&quot;value&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-97"><a href="#cb5-97" aria-hidden="true" tabindex="-1"></a>      <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> month,</span>
+<span id="cb5-98"><a href="#cb5-98" aria-hidden="true" tabindex="-1"></a>                  <span class="at">values_from =</span> value) <span class="sc">|&gt;</span></span>
+<span id="cb5-99"><a href="#cb5-99" aria-hidden="true" tabindex="-1"></a>      <span class="fu">gt</span>() <span class="sc">|&gt;</span></span>
+<span id="cb5-100"><a href="#cb5-100" aria-hidden="true" tabindex="-1"></a>      <span class="fu">tab_style</span>(</span>
+<span id="cb5-101"><a href="#cb5-101" aria-hidden="true" tabindex="-1"></a>        <span class="at">style =</span> <span class="fu">cell_text</span>(<span class="at">weight =</span> <span class="st">&quot;bold&quot;</span>),</span>
+<span id="cb5-102"><a href="#cb5-102" aria-hidden="true" tabindex="-1"></a>        <span class="at">locations =</span> <span class="fu">cells_column_labels</span>()</span>
+<span id="cb5-103"><a href="#cb5-103" aria-hidden="true" tabindex="-1"></a>        ) <span class="sc">|&gt;</span> </span>
+<span id="cb5-104"><a href="#cb5-104" aria-hidden="true" tabindex="-1"></a>      <span class="fu">tab_header</span>(</span>
+<span id="cb5-105"><a href="#cb5-105" aria-hidden="true" tabindex="-1"></a>        <span class="at">title =</span> <span class="fu">md</span>(<span class="st">&quot;Mean Lab Confirmed Measles and Rubella Cases Per Month&quot;</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb5-106"><a href="#cb5-106" aria-hidden="true" tabindex="-1"></a>      <span class="fu">tab_source_note</span>(</span>
+<span id="cb5-107"><a href="#cb5-107" aria-hidden="true" tabindex="-1"></a>          <span class="at">source_note =</span> <span class="fu">md</span>(<span class="st">&quot;*Table 1: Mean monthly lab-confirmed measles and rubella cases over the course of the study (2012-2025).*&quot;</span>)</span>
+<span id="cb5-108"><a href="#cb5-108" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb5-109"><a href="#cb5-109" aria-hidden="true" tabindex="-1"></a>      <span class="fu">fmt_number</span>(</span>
+<span id="cb5-110"><a href="#cb5-110" aria-hidden="true" tabindex="-1"></a>        <span class="at">columns  =</span> <span class="fu">where</span>(is.numeric),</span>
+<span id="cb5-111"><a href="#cb5-111" aria-hidden="true" tabindex="-1"></a>        <span class="at">decimals =</span> <span class="dv">1</span></span>
+<span id="cb5-112"><a href="#cb5-112" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb5-113"><a href="#cb5-113" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(df2)</span>
+<span id="cb5-114"><a href="#cb5-114" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb5-115"><a href="#cb5-115" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;Must input a dataframe&#39;</span></span>
+<span id="cb5-116"><a href="#cb5-116" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb5-117"><a href="#cb5-117" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb5-118"><a href="#cb5-118" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-119"><a href="#cb5-119" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb5-119"><a href="#cb5-119" aria-hidden="true" tabindex="-1"></a><span class="fu">monthly_sums</span>(cases_month, month) </span>
 <span id="cb5-120"><a href="#cb5-120" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-121"><a href="#cb5-121" aria-hidden="true" tabindex="-1"></a>**Summary 2**   </span>
-<span id="cb5-122"><a href="#cb5-122" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Using measels_year, which regions of the world contribute the most to measles cases? (only looking at 2025)      </span>
-<span id="cb5-123"><a href="#cb5-123" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-124"><a href="#cb5-124" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-127"><a href="#cb5-127" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb5-128"><a href="#cb5-128" aria-hidden="true" tabindex="-1"></a>region_burden <span class="ot">&lt;-</span> <span class="cf">function</span>(region_name) {</span>
-<span id="cb5-129"><a href="#cb5-129" aria-hidden="true" tabindex="-1"></a>  cases_year <span class="sc">|&gt;</span></span>
-<span id="cb5-130"><a href="#cb5-130" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(year <span class="sc">==</span> <span class="dv">2025</span>, region <span class="sc">==</span> region_name) <span class="sc">|&gt;</span></span>
-<span id="cb5-131"><a href="#cb5-131" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">measles_total =</span> <span class="fu">as.numeric</span>(measles_total)) <span class="sc">|&gt;</span></span>
-<span id="cb5-132"><a href="#cb5-132" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarize</span>(</span>
-<span id="cb5-133"><a href="#cb5-133" aria-hidden="true" tabindex="-1"></a>      <span class="at">region =</span> region_name,</span>
-<span id="cb5-134"><a href="#cb5-134" aria-hidden="true" tabindex="-1"></a>      <span class="at">total_cases =</span> <span class="fu">sum</span>(measles_total, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb5-135"><a href="#cb5-135" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb5-136"><a href="#cb5-136" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb5-137"><a href="#cb5-137" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-138"><a href="#cb5-138" aria-hidden="true" tabindex="-1"></a>regions <span class="ot">&lt;-</span> <span class="fu">unique</span>(cases_year<span class="sc">$</span>region)</span>
-<span id="cb5-139"><a href="#cb5-139" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-140"><a href="#cb5-140" aria-hidden="true" tabindex="-1"></a><span class="fu">map</span>(regions, region_burden) <span class="sc">|&gt;</span></span>
-<span id="cb5-141"><a href="#cb5-141" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>(<span class="at">.id=</span><span class="st">&quot;id&quot;</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb5-142"><a href="#cb5-142" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">pct_global =</span> <span class="fu">round</span>(total_cases <span class="sc">/</span> <span class="fu">sum</span>(total_cases) <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>),</span>
-<span id="cb5-143"><a href="#cb5-143" aria-hidden="true" tabindex="-1"></a>         <span class="at">region =</span> region <span class="sc">|&gt;</span></span>
-<span id="cb5-144"><a href="#cb5-144" aria-hidden="true" tabindex="-1"></a>           <span class="fu">recode_values</span>(</span>
-<span id="cb5-145"><a href="#cb5-145" aria-hidden="true" tabindex="-1"></a>                    <span class="st">&quot;EMRO&quot;</span> <span class="sc">~</span> <span class="st">&quot;Eastern Mediterranean&quot;</span>,</span>
-<span id="cb5-146"><a href="#cb5-146" aria-hidden="true" tabindex="-1"></a>                    <span class="st">&quot;AFRO&quot;</span> <span class="sc">~</span> <span class="st">&quot;Africa&quot;</span>,</span>
-<span id="cb5-147"><a href="#cb5-147" aria-hidden="true" tabindex="-1"></a>                    <span class="st">&quot;EURO&quot;</span> <span class="sc">~</span> <span class="st">&quot;Europe&quot;</span>,</span>
-<span id="cb5-148"><a href="#cb5-148" aria-hidden="true" tabindex="-1"></a>                    <span class="st">&quot;SEARO&quot;</span> <span class="sc">~</span> <span class="st">&quot;South-East Asia&quot;</span>,</span>
-<span id="cb5-149"><a href="#cb5-149" aria-hidden="true" tabindex="-1"></a>                    <span class="st">&quot;AMRO&quot;</span> <span class="sc">~</span> <span class="st">&quot;Americas&quot;</span>,</span>
-<span id="cb5-150"><a href="#cb5-150" aria-hidden="true" tabindex="-1"></a>                    <span class="st">&quot;WPRO&quot;</span> <span class="sc">~</span> <span class="st">&quot;Western Pacific&quot;</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb5-151"><a href="#cb5-151" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(total_cases)) <span class="sc">|&gt;</span></span>
-<span id="cb5-152"><a href="#cb5-152" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span>id) <span class="sc">|&gt;</span></span>
-<span id="cb5-153"><a href="#cb5-153" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">|&gt;</span></span>
-<span id="cb5-154"><a href="#cb5-154" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_header</span>(</span>
-<span id="cb5-155"><a href="#cb5-155" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="fu">md</span>(<span class="st">&quot;**Regional Measles Burden**&quot;</span>),</span>
-<span id="cb5-156"><a href="#cb5-156" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">&quot;2025 Contribution to Global Total&quot;</span></span>
-<span id="cb5-157"><a href="#cb5-157" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb5-158"><a href="#cb5-158" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label</span>(</span>
-<span id="cb5-159"><a href="#cb5-159" aria-hidden="true" tabindex="-1"></a>    <span class="at">region      =</span> <span class="st">&quot;Region&quot;</span>,</span>
-<span id="cb5-160"><a href="#cb5-160" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_cases =</span> <span class="st">&quot;Total Cases&quot;</span>,</span>
-<span id="cb5-161"><a href="#cb5-161" aria-hidden="true" tabindex="-1"></a>    <span class="at">pct_global  =</span> <span class="st">&quot;% of Global Total&quot;</span></span>
-<span id="cb5-162"><a href="#cb5-162" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb5-163"><a href="#cb5-163" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_number</span>(<span class="at">columns =</span> total_cases, <span class="at">decimals =</span> <span class="dv">0</span>) <span class="sc">|&gt;</span></span>
-<span id="cb5-164"><a href="#cb5-164" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_number</span>(</span>
-<span id="cb5-165"><a href="#cb5-165" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns  =</span> pct_global,</span>
-<span id="cb5-166"><a href="#cb5-166" aria-hidden="true" tabindex="-1"></a>    <span class="at">decimals =</span> <span class="dv">1</span>,</span>
-<span id="cb5-167"><a href="#cb5-167" aria-hidden="true" tabindex="-1"></a>    <span class="at">pattern  =</span> <span class="st">&quot;{x}%&quot;</span></span>
-<span id="cb5-168"><a href="#cb5-168" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb5-169"><a href="#cb5-169" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_style</span>(</span>
-<span id="cb5-170"><a href="#cb5-170" aria-hidden="true" tabindex="-1"></a>    <span class="at">style     =</span> <span class="fu">cell_text</span>(<span class="at">weight =</span> <span class="st">&quot;bold&quot;</span>),</span>
-<span id="cb5-171"><a href="#cb5-171" aria-hidden="true" tabindex="-1"></a>    <span class="at">locations =</span> <span class="fu">cells_column_labels</span>()</span>
-<span id="cb5-172"><a href="#cb5-172" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb5-173"><a href="#cb5-173" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_source_note</span>(</span>
-<span id="cb5-174"><a href="#cb5-174" aria-hidden="true" tabindex="-1"></a>    <span class="at">source_note =</span> <span class="fu">md</span>(<span class="st">&quot;*Table 2: Total measles cases and share of global burden by WHO region, 2025.*&quot;</span>)</span>
-<span id="cb5-175"><a href="#cb5-175" aria-hidden="true" tabindex="-1"></a>  ) </span>
-<span id="cb5-176"><a href="#cb5-176" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb5-177"><a href="#cb5-177" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-178"><a href="#cb5-178" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-179"><a href="#cb5-179" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-180"><a href="#cb5-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-121"><a href="#cb5-121" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb5-122"><a href="#cb5-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-123"><a href="#cb5-123" aria-hidden="true" tabindex="-1"></a>**Summary 2**   </span>
+<span id="cb5-124"><a href="#cb5-124" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Using measels_year, which regions of the world contribute the most to measles cases? (only looking at 2025)  </span>
+<span id="cb5-125"><a href="#cb5-125" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-126"><a href="#cb5-126" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>Use of custom function, iteration, 1 unmodified column, 1 modified column   </span>
+<span id="cb5-127"><a href="#cb5-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-128"><a href="#cb5-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-131"><a href="#cb5-131" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb5-132"><a href="#cb5-132" aria-hidden="true" tabindex="-1"></a>region_burden <span class="ot">&lt;-</span> <span class="cf">function</span>(region_name) {</span>
+<span id="cb5-133"><a href="#cb5-133" aria-hidden="true" tabindex="-1"></a>  cases_year <span class="sc">|&gt;</span></span>
+<span id="cb5-134"><a href="#cb5-134" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(year <span class="sc">==</span> <span class="dv">2025</span>, region <span class="sc">==</span> region_name) <span class="sc">|&gt;</span></span>
+<span id="cb5-135"><a href="#cb5-135" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">measles_total =</span> <span class="fu">as.numeric</span>(measles_total)) <span class="sc">|&gt;</span></span>
+<span id="cb5-136"><a href="#cb5-136" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarize</span>(</span>
+<span id="cb5-137"><a href="#cb5-137" aria-hidden="true" tabindex="-1"></a>      <span class="at">region =</span> region_name,</span>
+<span id="cb5-138"><a href="#cb5-138" aria-hidden="true" tabindex="-1"></a>      <span class="at">total_cases =</span> <span class="fu">sum</span>(measles_total, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb5-139"><a href="#cb5-139" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-140"><a href="#cb5-140" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-141"><a href="#cb5-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-142"><a href="#cb5-142" aria-hidden="true" tabindex="-1"></a>regions <span class="ot">&lt;-</span> <span class="fu">unique</span>(cases_year<span class="sc">$</span>region)</span>
+<span id="cb5-143"><a href="#cb5-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-144"><a href="#cb5-144" aria-hidden="true" tabindex="-1"></a><span class="fu">map</span>(regions, region_burden) <span class="sc">|&gt;</span></span>
+<span id="cb5-145"><a href="#cb5-145" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>(<span class="at">.id=</span><span class="st">&quot;id&quot;</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb5-146"><a href="#cb5-146" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">pct_global =</span> <span class="fu">round</span>(total_cases <span class="sc">/</span> <span class="fu">sum</span>(total_cases) <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>),</span>
+<span id="cb5-147"><a href="#cb5-147" aria-hidden="true" tabindex="-1"></a>         <span class="at">region =</span> region <span class="sc">|&gt;</span></span>
+<span id="cb5-148"><a href="#cb5-148" aria-hidden="true" tabindex="-1"></a>           <span class="fu">recode_values</span>(</span>
+<span id="cb5-149"><a href="#cb5-149" aria-hidden="true" tabindex="-1"></a>                    <span class="st">&quot;EMRO&quot;</span> <span class="sc">~</span> <span class="st">&quot;Eastern Mediterranean&quot;</span>,</span>
+<span id="cb5-150"><a href="#cb5-150" aria-hidden="true" tabindex="-1"></a>                    <span class="st">&quot;AFRO&quot;</span> <span class="sc">~</span> <span class="st">&quot;Africa&quot;</span>,</span>
+<span id="cb5-151"><a href="#cb5-151" aria-hidden="true" tabindex="-1"></a>                    <span class="st">&quot;EURO&quot;</span> <span class="sc">~</span> <span class="st">&quot;Europe&quot;</span>,</span>
+<span id="cb5-152"><a href="#cb5-152" aria-hidden="true" tabindex="-1"></a>                    <span class="st">&quot;SEARO&quot;</span> <span class="sc">~</span> <span class="st">&quot;South-East Asia&quot;</span>,</span>
+<span id="cb5-153"><a href="#cb5-153" aria-hidden="true" tabindex="-1"></a>                    <span class="st">&quot;AMRO&quot;</span> <span class="sc">~</span> <span class="st">&quot;Americas&quot;</span>,</span>
+<span id="cb5-154"><a href="#cb5-154" aria-hidden="true" tabindex="-1"></a>                    <span class="st">&quot;WPRO&quot;</span> <span class="sc">~</span> <span class="st">&quot;Western Pacific&quot;</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb5-155"><a href="#cb5-155" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(total_cases)) <span class="sc">|&gt;</span></span>
+<span id="cb5-156"><a href="#cb5-156" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span>id) <span class="sc">|&gt;</span></span>
+<span id="cb5-157"><a href="#cb5-157" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">|&gt;</span></span>
+<span id="cb5-158"><a href="#cb5-158" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_header</span>(</span>
+<span id="cb5-159"><a href="#cb5-159" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="fu">md</span>(<span class="st">&quot;**Regional Measles Burden**&quot;</span>),</span>
+<span id="cb5-160"><a href="#cb5-160" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">&quot;2025 Contribution to Global Total&quot;</span></span>
+<span id="cb5-161"><a href="#cb5-161" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb5-162"><a href="#cb5-162" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label</span>(</span>
+<span id="cb5-163"><a href="#cb5-163" aria-hidden="true" tabindex="-1"></a>    <span class="at">region      =</span> <span class="st">&quot;Region&quot;</span>,</span>
+<span id="cb5-164"><a href="#cb5-164" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_cases =</span> <span class="st">&quot;Total Cases&quot;</span>,</span>
+<span id="cb5-165"><a href="#cb5-165" aria-hidden="true" tabindex="-1"></a>    <span class="at">pct_global  =</span> <span class="st">&quot;% of Global Total&quot;</span></span>
+<span id="cb5-166"><a href="#cb5-166" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb5-167"><a href="#cb5-167" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_number</span>(<span class="at">columns =</span> total_cases, <span class="at">decimals =</span> <span class="dv">0</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-168"><a href="#cb5-168" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_number</span>(</span>
+<span id="cb5-169"><a href="#cb5-169" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns  =</span> pct_global,</span>
+<span id="cb5-170"><a href="#cb5-170" aria-hidden="true" tabindex="-1"></a>    <span class="at">decimals =</span> <span class="dv">1</span>,</span>
+<span id="cb5-171"><a href="#cb5-171" aria-hidden="true" tabindex="-1"></a>    <span class="at">pattern  =</span> <span class="st">&quot;{x}%&quot;</span></span>
+<span id="cb5-172"><a href="#cb5-172" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb5-173"><a href="#cb5-173" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_style</span>(</span>
+<span id="cb5-174"><a href="#cb5-174" aria-hidden="true" tabindex="-1"></a>    <span class="at">style     =</span> <span class="fu">cell_text</span>(<span class="at">weight =</span> <span class="st">&quot;bold&quot;</span>),</span>
+<span id="cb5-175"><a href="#cb5-175" aria-hidden="true" tabindex="-1"></a>    <span class="at">locations =</span> <span class="fu">cells_column_labels</span>()</span>
+<span id="cb5-176"><a href="#cb5-176" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb5-177"><a href="#cb5-177" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_source_note</span>(</span>
+<span id="cb5-178"><a href="#cb5-178" aria-hidden="true" tabindex="-1"></a>    <span class="at">source_note =</span> <span class="fu">md</span>(<span class="st">&quot;*Table 2: Total measles cases and share of global burden by WHO region, 2025.*&quot;</span>)</span>
+<span id="cb5-179"><a href="#cb5-179" aria-hidden="true" tabindex="-1"></a>  ) </span>
+<span id="cb5-180"><a href="#cb5-180" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb5-181"><a href="#cb5-181" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-182"><a href="#cb5-182" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-183"><a href="#cb5-183" aria-hidden="true" tabindex="-1"></a></span>
@@ -3938,6 +3944,10 @@ height: 0px !important;
 <span id="cb5-190"><a href="#cb5-190" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-191"><a href="#cb5-191" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-192"><a href="#cb5-192" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-193"><a href="#cb5-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-194"><a href="#cb5-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-195"><a href="#cb5-195" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-196"><a href="#cb5-196" aria-hidden="true" tabindex="-1"></a></span>
 </code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->

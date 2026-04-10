@@ -73,7 +73,9 @@ The given CSVs are cleaned mostly through formatting and data type conversions. 
 ## Unmodified data summaries  
 
 **Summary 1**   
-- Using cases_month, across all years is there monthly variation in mean lab confirmed measels/rubella cases?  
+- Using cases_month, across all years is there monthly variation in mean lab confirmed measels/rubella cases? 
+  
+  - Use of unmodified column, custom function   
 
 ```{r}
 
@@ -114,7 +116,9 @@ monthly_sums(cases_month, month)
 ```
 
 **Summary 2**   
-- Using measels_year, which regions of the world contribute the most to measles cases? (only looking at 2025)      
+- Using measels_year, which regions of the world contribute the most to measles cases? (only looking at 2025)  
+  
+  - Use of custom function, iteration, 1 unmodified column, 1 modified column   
 
 
 ```{r}
