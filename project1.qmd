@@ -13,11 +13,11 @@ execute:
 ---
 
 ## Table of Contents:
-- [Week 1](#week-1)   
-- [Week 2](#week-2)
 
+-   [Week 1](#week-1)\
+-   [Week 2](#week-2)
 
-## Load Libraries   
+## Load Libraries
 
 ```{r}
 library(tidyverse)
@@ -25,7 +25,7 @@ library(gt)
 
 ```
 
-# Week 1 {#week-1}    
+# Week 1 {#week-1}
 
 ## Loading in the Data
 
@@ -35,13 +35,11 @@ cases_month <- readr::read_csv('https://raw.githubusercontent.com/rfordatascienc
 cases_year <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-06-24/cases_year.csv')
 ```
 
-
 ## Data Description
 
 The following data concerns measles and rubella cases. The data was from the World Health Organization (WHO) between 2012 and June 6, 2025. This includes monthly and yearly data across multiple countries grouped into WHO regions, where each row corresponds to a specific country within a region. The data is provisional and is early case reports by WHO member countries collected using each countries national surveillance systems. The data contains several types of case confirmations (suspected, clinical, epidemiologically linked, and lab confirmed) as well as population count data in the yearly data set. The data was collected to monitor measles and rubella cases worldwide in order to support public health decision making and vaccination strategies.
 
-- [Data source](https://github.com/rfordatascience/tidytuesday/blob/main/data/2025/2025-06-24/readme.md) 
-
+-   [Data source](https://github.com/rfordatascience/tidytuesday/blob/main/data/2025/2025-06-24/readme.md)
 
 ## Cleaning Performed
 
@@ -65,17 +63,16 @@ The given CSVs are cleaned mostly through formatting and data type conversions. 
 
 ![](images/861248618234.png){fig-align="center"}
 
-![](images/082450803485092345.png)    
+![](images/082450803485092345.png)
 
+# Week 2 {#week-2}
 
-# Week 2 {#week-2}   
+## Unmodified data summaries
 
-## Unmodified data summaries  
+**Summary 1**\
+- Using cases_month, across all years is there monthly variation in mean lab confirmed measels/rubella cases?
 
-**Summary 1**   
-- Using cases_month, across all years is there monthly variation in mean lab confirmed measels/rubella cases? 
-  
-  - Use of unmodified column, custom function   
+-   Use of unmodified column, custom function
 
 ```{r}
 
@@ -115,11 +112,10 @@ monthly_sums(cases_month, month)
 
 ```
 
-**Summary 2**   
-- Using measels_year, which regions of the world contribute the most to measles cases? (only looking at 2025)  
-  
-  - Use of custom function, iteration, 1 unmodified column, 1 modified column   
+**Summary 2**\
+- Using measels_year, which regions of the world contribute the most to measles cases? (only looking at 2025)
 
+-   Use of custom function, iteration, 1 unmodified column, 1 modified column
 
 ```{r}
 
@@ -173,19 +169,31 @@ map(regions, region_burden) |>
   ) 
 ```
 
+**Summary 3:** Average lab quality across each year.
 
+Average lab quality is the proportion of lab confirmed measles cases and total reported measles cases (across all testing types).
 
+```{r}
+years <- sort(unique(cases_year$year))
 
+get_lab_quality <- function(y){
+  cases_year |>
+    filter(year == y)|>
+    mutate(lab_quality = measles_lab_confirmed / measles_total) |>
+    summarise(avg_lab_quality = mean(lab_quality, na.rm = TRUE),
+              .groups = "drop") |>
+    mutate(year = y)
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
+map(years, get_lab_quality) |>
+  bind_rows() |>
+  pivot_wider(names_from = year, values_from = avg_lab_quality) |>
+  mutate(Year = "Average Lab Confirmation Share") |>
+  select(Year, everything()) |>
+  gt() |>
+  tab_header(title = md("**Lab Confirmation Quality Over Time**"),
+             subtitle = "Average share of lab confirmed measles cases by region") |>
+  fmt_number(columns = -Year, decimals = 2) |>
+  tab_style(style     = cell_text(weight = "bold"),
+            locations = cells_column_labels())
+```
