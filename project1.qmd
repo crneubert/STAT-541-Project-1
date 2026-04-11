@@ -78,7 +78,7 @@ The given CSVs are cleaned mostly through formatting and data type conversions. 
 
 monthly_sums <- function(df, group) {
   if (is.data.frame(df)) {
-    df2 <- df |>
+    df |>
       group_by({{group}}) |>
       summarize(
                 `Mean Measles Cases` = mean(measles_lab_confirmed, na.rm = TRUE),
@@ -102,9 +102,8 @@ monthly_sums <- function(df, group) {
         columns  = where(is.numeric),
         decimals = 1
   )
-    return(df2)
   } else {
-  'Must input a dataframe'
+  stop('Must input a dataframe')
   }
 }
 
@@ -192,7 +191,7 @@ map(years, get_lab_quality) |>
   select(Year, everything()) |>
   gt() |>
   tab_header(title = md("**Lab Confirmation Quality Over Time**"),
-             subtitle = "Average share of lab confirmed measles cases by region") |>
+             subtitle = "Average share of lab confirmed measles cases by year") |>
   fmt_number(columns = -Year, decimals = 2) |>
   tab_style(style     = cell_text(weight = "bold"),
             locations = cells_column_labels())
