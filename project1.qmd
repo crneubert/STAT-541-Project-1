@@ -190,9 +190,11 @@ map(years, get_lab_quality) |>
   mutate(Year = "Average Lab Confirmation Share") |>
   select(Year, everything()) |>
   gt() |>
-  tab_header(title = md("**Lab Confirmation Quality Over Time**"),
-             subtitle = "Average share of lab confirmed measles cases by year") |>
-  fmt_number(columns = -Year, decimals = 2) |>
+  tab_header(title = md("**Lab Confirmation Quality Over Time**")) |>
+  fmt_percent(columns = -Year, decimals = 1) |>
   tab_style(style     = cell_text(weight = "bold"),
-            locations = cells_column_labels())
+            locations = cells_column_labels()) |>
+  tab_source_note(
+  source_note = md("*Table 3: Average lab confirmation share by year (2012–2025)*")
+)
 ```
