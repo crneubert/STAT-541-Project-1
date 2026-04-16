@@ -1,0 +1,89 @@
+---
+title: "Web-scrape Script"
+author: "Ben Parker"
+format: 
+  html:
+    embed-resources: true
+    code-tools: true
+    page-layout: full
+    toc: true 
+editor: visual
+execute:
+  message: false
+  warning: false
+---
+
+# Web Scrape Script   
+
+```{r}
+library(tidyverse)
+library(gt)
+library(httr)
+library(tidyjson)
+library(jsonlite)
+library(rvest)
+
+cases_month <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-06-24/cases_month.csv')
+
+#revest tutorial
+# https://rvest.tidyverse.org/
+cases_month2 <- cases_month |>
+  mutate(month_abb = recode_values(month, 
+                        1 ~ "Jan",
+                        2 ~ "Feb",
+                        3 ~ "Mar",
+                        4 ~ "Apr",
+                        5 ~ "May",
+                        6 ~ "Jun",
+                        7 ~ "Jul",
+                        8 ~ "Aug",
+                        9 ~ "Sep",
+                        10 ~ "Oct",
+                        11 ~ "Nov",
+                        12 ~ "Dec"),
+      country_scrape = str_to_lower(country),
+      country_scrape = str_replace_all(country_scrape, " ", "-"))
+
+
+country_vec <- c(unique(cases_month2$country_scrape))
+
+grab_weather <- function(country) {
+  base_url <- "https://weatherandclimate.com/"
+  climate_url <- str_c(base_url,country) 
+  
+  result <- tryCatch({
+      read_html(climate_url)
+    }, error = function(e) {
+      message("Failed for ", country, e$message)
+      NULL
+    })
+
+  if (is.null(result)) {
+    return(NULL) 
+  } else {
+    result |>
+      html_element(".tb6") |>
+      html_table() |>
+      pivot_longer(col = Jan:Dec, names_to = "month", values_to = "stat") |> 
+      filter(Month %in% c("Average precipitation mm (inches)", "Daily mean °C (°F)")) |>
+      select(!Year) |>
+      pivot_wider(names_from = "Month", values_from = "stat") |>
+      rename(mean_temp = 2,
+         mean_precip = 3) |>
+      mutate(mean_temp = as.numeric(str_extract(mean_temp, "(?<=\\()[0-9.]+")),
+            mean_precip = as.numeric(str_extract(mean_precip, "(?<=\\()[0-9.]+")),
+            country = country) #got the regex case from AI looks for values in the ()
+
+  }
+}
+
+scraped_weather <- map(.x = country_vec, .f = grab_weather) |>
+  bind_rows(.id = "id")
+
+
+#write.csv(scraped_weather, "./site/data/weather-scrape.csv")
+
+
+```
+
+

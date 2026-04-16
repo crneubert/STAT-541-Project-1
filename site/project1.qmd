@@ -6,6 +6,7 @@ format:
     embed-resources: true
     code-tools: true
     page-layout: full
+    toc: true 
 editor: visual
 execute:
   message: false
@@ -14,15 +15,20 @@ execute:
 
 ## Table of Contents:
 
--   [Week 1](#week-1)\
+-   [Week 1](#week-1)   
 -   [Week 2](#week-2)
+-   [Week 3](#week-3)   
 
 ## Load Libraries
 
 ```{r}
 library(tidyverse)
 library(gt)
-
+library(httr)
+library(tidyjson)
+library(jsonlite)
+library(rvest)
+library(here)
 ```
 
 # Week 1 {#week-1}
@@ -69,7 +75,7 @@ The given CSVs are cleaned mostly through formatting and data type conversions. 
 
 ## Unmodified data summaries
 
-**Summary 1**\
+**Summary 1**     
 - Using cases_month, across all years is there monthly variation in mean lab confirmed measels/rubella cases?
 
 -   Use of unmodified column, custom function
@@ -111,7 +117,7 @@ monthly_sums(cases_month, month)
 
 ```
 
-**Summary 2**\
+**Summary 2**   
 - Using measels_year, which regions of the world contribute the most to measles cases? (only looking at 2025)
 
 -   Use of custom function, iteration, 1 unmodified column, 1 modified column
@@ -198,3 +204,102 @@ map(years, get_lab_quality) |>
   source_note = md("*Table 3: Average lab confirmation share by year (2012–2025)*")
 )
 ```
+
+# Week 3 {#week-3}      
+
+## Meta Dataset   
+Need to do some cleaning of the cases_month meta dataset.   
+
+```{r}
+# need to do some cleaning for the webscraping process
+cases_month2 <- cases_month |>
+  mutate(month_abb = recode_values(month, 
+                        1 ~ "Jan",
+                        2 ~ "Feb",
+                        3 ~ "Mar",
+                        4 ~ "Apr",
+                        5 ~ "May",
+                        6 ~ "Jun",
+                        7 ~ "Jul",
+                        8 ~ "Aug",
+                        9 ~ "Sep",
+                        10 ~ "Oct",
+                        11 ~ "Nov",
+                        12 ~ "Dec"),
+      country_scrape = str_to_lower(country),
+      country_scrape = str_replace_all(country_scrape, " ", "-"))
+
+
+
+```
+
+## Web-scraped Data   
+
+**Source**    
+- [WeatherandClimate](https://weatherandclimate.com/) 
+  
+  - WeatherAndClimate is an online climate zone and data finder for 80,000+ locations in the world based on Köppen climate classification. The data is updated every 10 minutes and historical data is back to 1980.      
+  - From the base page, users can click countries to visualize monthly temperatures and precipitation.  
+  - I will be scraping the table (class = tb6) at the url - ex. https://weatherandclimate.com/american-samoa 
+  - Countries are lowercase and hyphen separated. 
+  - Units will be imperial.
+
+
+### Data scrape script    
+The data scrape takes a long time, so I've moved it to it's own location to allow for easy rendering of this document.  
+
+The script is located [here](./scripts/web-scrape.html).  
+
+## Meta Update   
+- Load scraped data from data/ 
+
+```{r}
+
+scraped_data <- read.csv(here("site","data", "weather-scrape.csv")) 
+
+cases_month3 <- left_join(cases_month2, scraped_data, by = c("month_abb" = "month",  "country_scrape" = "country" ), 
+                          relationship = "many-to-many")
+
+# after the join... 2756 of the 22,780 datapoints don't have temp or precip data
+# makes sense 19 of the 173 countries failed in the iteration
+
+```
+
+## Week 3 Delieverables    
+
+**Visualization:**    
+Is there a relationship between mean temperature, precipitation and measles cases?    
+
+  - How does this change between the hemispheres?  
+    - Compare southern/northern hemisphere countries 
+
+```{r}
+measles_sum <- cases_month3 |>
+  group_by(country, month, month_abb, mean_temp, mean_precip) |>
+  summarize(mean_measles = mean(measles_total, na.rm = TRUE)) |>
+  arrange(month)
+
+ton <- measles_sum |>
+  filter(country %in% "Australia")
+
+# will standarize units to visualize
+example_vis <- measles_sum |>
+  ungroup() |>
+  filter(country %in% c("Belgium", "Australia")) |>
+  mutate(across(c(mean_temp, mean_precip, mean_measles), scale)) |>
+  mutate(month_abb = factor(month_abb, levels = month.abb)) |>
+  pivot_longer(cols = c(mean_temp, mean_precip, mean_measles), 
+               names_to = "variable", values_to = "value") |>
+  ggplot(aes(x = month_abb, y = value, color = variable, group = variable)) +
+  geom_line() +
+  facet_wrap(~ country)
+
+print(example_vis)
+```
+
+
+
+
+
+
+
