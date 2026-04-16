@@ -248,7 +248,7 @@ cases_month2 <- cases_month |>
 ### Data scrape script    
 The data scrape takes a long time, so I've moved it to it's own location to allow for easy rendering of this document.  
 
-The script is located [here](./scripts/web-scrape.html).  
+The script is located [here](https://crneubert.github.io/STAT-541-Project-1/site/scripts/web-scrape.html).  
 
 ## Meta Update   
 - Load scraped data from data/ 
