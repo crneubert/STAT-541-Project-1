@@ -15,9 +15,9 @@ execute:
 
 ## Table of Contents:
 
--   [Week 1](#week-1)   
+-   [Week 1](#week-1)\
 -   [Week 2](#week-2)
--   [Week 3](#week-3)   
+-   [Week 3](#week-3)
 
 ## Load Libraries
 
@@ -75,7 +75,7 @@ The given CSVs are cleaned mostly through formatting and data type conversions. 
 
 ## Unmodified data summaries
 
-**Summary 1**     
+**Summary 1**\
 - Using cases_month, across all years is there monthly variation in mean lab confirmed measels/rubella cases?
 
 -   Use of unmodified column, custom function
@@ -117,7 +117,7 @@ monthly_sums(cases_month, month)
 
 ```
 
-**Summary 2**   
+**Summary 2**\
 - Using measels_year, which regions of the world contribute the most to measles cases? (only looking at 2025)
 
 -   Use of custom function, iteration, 1 unmodified column, 1 modified column
@@ -205,10 +205,11 @@ map(years, get_lab_quality) |>
 )
 ```
 
-# Week 3 {#week-3}      
+# Week 3 {#week-3}
 
-## Meta Dataset   
-Need to do some cleaning of the cases_month meta dataset.   
+## Dataset Preparation
+
+Need to do some cleaning of the cases_month meta dataset to better match the data for joining.
 
 ```{r}
 # need to do some cleaning for the webscraping process
@@ -233,25 +234,26 @@ cases_month2 <- cases_month |>
 
 ```
 
-## Web-scraped Data   
+## Web-scraped Data
 
-**Source**    
-- [WeatherandClimate](https://weatherandclimate.com/) 
-  
-  - WeatherAndClimate is an online climate zone and data finder for 80,000+ locations in the world based on Köppen climate classification. The data is updated every 10 minutes and historical data is back to 1980.      
-  - From the base page, users can click countries to visualize monthly temperatures and precipitation.  
-  - I will be scraping the table (class = tb6) at the url - ex. https://weatherandclimate.com/american-samoa 
-  - Countries are lowercase and hyphen separated. 
-  - Units will be imperial.
+**Source**\
+- [WeatherandClimate](https://weatherandclimate.com/)
 
+-   WeatherAndClimate is an online climate zone and data finder for 80,000+ locations in the world based on Köppen climate classification. The data is updated every 10 minutes and historical data is back to 1980.\
+-   From the base page, users can click countries to visualize monthly temperatures and precipitation.\
+-   I will be scraping the table (class = tb6) at the url - ex. https://weatherandclimate.com/american-samoa
+-   Countries are lowercase and hyphen separated.
+-   Units will be imperial.
 
-### Data scrape script    
-The data scrape takes a long time, so I've moved it to it's own location to allow for easy rendering of this document.  
+### Data scrape script
 
-The script is located [here](https://crneubert.github.io/STAT-541-Project-1/site/scripts/web-scrape.html).  
+The data scrape takes a long time, so I've moved it to it's own location to allow for easy rendering of this document.
 
-## Meta Update   
-- Load scraped data from data/ 
+The script is located [here](https://crneubert.github.io/STAT-541-Project-1/site/scripts/web-scrape.html).
+
+## Meta Update
+
+Combining the monthly cases data with the scraped data.
 
 ```{r}
 
@@ -265,13 +267,49 @@ cases_month3 <- left_join(cases_month2, scraped_data, by = c("month_abb" = "mont
 
 ```
 
-## Week 3 Delieverables    
+## Country Demographic Dataset
 
-**Visualization:**    
-Is there a relationship between mean temperature, precipitation and measles cases?    
+Loading in the data using API key.
 
-  - How does this change between the hemispheres?  
-    - Compare southern/northern hemisphere countries 
+```{r}
+country_names <- unique(cases_year$country)
+
+api_key <- "hmz9wf1cpAko2WM4Fz3oPInaZIt44Uf9uh3VFfxD"
+
+base_url <- "https://api.api-ninjas.com/v1/country"
+
+get_country_demo <- function(country_name){
+  GET(url = base_url,
+      add_headers('X-API-Key' = api_key),
+      query = list(name = country_name)) |>
+  content("text", encoding = "utf-8") |>
+  fromJSON() |>
+  as.data.frame()
+}
+
+country_demographic <- map_dfr(country_names, get_country_demo)
+```
+
+**Descripion:** The Country Demographic Datset is taken from API Ninja's Country API, which provides geographic, demographic, and economic statistics about every country in the world. Each row represents a single country and each column is a statistic about that country, of which there are 187 contries included over 40 different statistics.
+
+## Meta Dataset
+
+Combining the combined scraped data and monthly cases with the country demographic area.
+
+```{r}
+meta_data <- left_join(cases_month3,
+                       country_demographic,
+                       by = c("country" = "name"),
+                       relationship = "many-to-many")
+```
+
+## Week 3 Delieverables
+
+**Visualization:**\
+Is there a relationship between mean temperature, precipitation and measles cases?
+
+-   How does this change between the hemispheres?
+    -   Compare southern/northern hemisphere countries
 
 ```{r}
 measles_sum <- cases_month3 |>
@@ -297,9 +335,10 @@ example_vis <- measles_sum |>
 print(example_vis)
 ```
 
+ideas for API visualizations:
 
+-   GPD vs cases by country
 
+-   homicide rates vs cases by country
 
-
-
-
+-   (cant use any time data really since the statistics arent attatched to a time its just general country data
