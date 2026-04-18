@@ -89,31 +89,30 @@ monthly_sums <- function(df, group) {
       summarize(
                 `Mean Measles Cases` = mean(measles_lab_confirmed, na.rm = TRUE),
                 `Mean Rubella Cases` = mean(rubella_lab_confirmed, na.rm = TRUE)) |>
+      mutate(month_abb = month.abb[as.integer(month)]) |>
       pivot_longer(cols = c(`Mean Measles Cases`, `Mean Rubella Cases`),
                    names_to =  "Statistic",
                    values_to = "value") |>
-      pivot_wider(names_from = month,
+      select(-month) |>
+      pivot_wider(names_from = month_abb,
                   values_from = value) |>
       gt() |>
       tab_style(
         style = cell_text(weight = "bold"),
-        locations = cells_column_labels()
-        ) |> 
+        locations = cells_column_labels()) |> 
       tab_header(
         title = md("Mean Lab Confirmed Measles and Rubella Cases Per Month")) |>
       tab_source_note(
-          source_note = md("*Table 1: Mean monthly lab-confirmed measles and rubella cases over the course of the study (2012-2025).*")
-  ) |>
+        source_note = md("*Table 1: Mean monthly lab-confirmed measles and rubella cases over the course of the study (2012-2025).*")) |>
       fmt_number(
         columns  = where(is.numeric),
-        decimals = 1
-  )
+        decimals = 1)
   } else {
   stop('Must input a dataframe')
   }
 }
 
-monthly_sums(cases_month, month) 
+monthly_sums(cases_month, month)
 
 ```
 
@@ -192,17 +191,17 @@ get_lab_quality <- function(y){
 
 map(years, get_lab_quality) |>
   bind_rows() |>
-  pivot_wider(names_from = year, values_from = avg_lab_quality) |>
-  mutate(Year = "Average Lab Confirmation Share") |>
-  select(Year, everything()) |>
+  select(year, avg_lab_quality) |>
   gt() |>
   tab_header(title = md("**Lab Confirmation Quality Over Time**")) |>
-  fmt_percent(columns = -Year, decimals = 1) |>
-  tab_style(style     = cell_text(weight = "bold"),
+  fmt_percent(columns = avg_lab_quality, decimals = 1) |>
+  cols_label(
+    year = "Year",
+    avg_lab_quality = "Average Lab Confirmation Share") |>
+  tab_style(style = cell_text(weight = "bold"),
             locations = cells_column_labels()) |>
   tab_source_note(
-  source_note = md("*Table 3: Average lab confirmation share by year (2012–2025)*")
-)
+    source_note = md("*Table 3: Average lab confirmation share by year (2012–2025)*"))
 ```
 
 # Week 3 {#week-3}
@@ -290,7 +289,7 @@ get_country_demo <- function(country_name){
 country_demographic <- map_dfr(country_names, get_country_demo)
 ```
 
-**Descripion:** The Country Demographic Datset is taken from API Ninja's Country API, which provides geographic, demographic, and economic statistics about every country in the world. Each row represents a single country and each column is a statistic about that country, of which there are 187 contries included over 40 different statistics.
+**Descripion:** The Country Demographic Datset is taken from API Ninja's Country API, which provides geographic, demographic, and economic statistics about every country in the world. Each row represents a single country and each column is a statistic about that country, of which there are 187 countries included and over 40 different statistics.
 
 ## Meta Dataset
 
@@ -306,39 +305,50 @@ meta_data <- left_join(cases_month3,
 ## Week 3 Delieverables
 
 **Visualization:**\
-Is there a relationship between mean temperature, precipitation and measles cases?
-
--   How does this change between the hemispheres?
-    -   Compare southern/northern hemisphere countries
+Is there a relationship between mean temperature measles cases throughout the year?
 
 ```{r}
-measles_sum <- cases_month3 |>
-  group_by(country, month, month_abb, mean_temp, mean_precip) |>
-  summarize(mean_measles = mean(measles_total, na.rm = TRUE)) |>
-  arrange(month)
-
-ton <- measles_sum |>
-  filter(country %in% "Australia")
-
-# will standarize units to visualize
-example_vis <- measles_sum |>
-  ungroup() |>
-  filter(country %in% c("Belgium", "Australia")) |>
-  mutate(across(c(mean_temp, mean_precip, mean_measles), scale)) |>
-  mutate(month_abb = factor(month_abb, levels = month.abb)) |>
-  pivot_longer(cols = c(mean_temp, mean_precip, mean_measles), 
-               names_to = "variable", values_to = "value") |>
+meta_data |>
+  group_by(month, month_abb) |>
+  summarize(
+    mean_measles = mean(measles_total, na.rm = TRUE),
+    mean_temp = mean(mean_temp, na.rm = TRUE),
+    .groups = "drop") |>
+  mutate(
+    mean_measles = as.numeric(scale(mean_measles)),
+    mean_temp = as.numeric(scale(mean_temp)),
+    month_abb = factor(month_abb, levels = month.abb)) |>
+  pivot_longer(
+    cols = c(mean_measles, mean_temp),
+    names_to = "variable",
+    values_to = "value") |>
   ggplot(aes(x = month_abb, y = value, color = variable, group = variable)) +
-  geom_line() +
-  facet_wrap(~ country)
-
-print(example_vis)
+  geom_line(linewidth = 1) +
+  labs(
+    title = "Measles Cases and Temperature by Month",
+    x = "Month",
+    y = "Standardized Value",
+    color = "Variable") +
+  theme_minimal()
 ```
 
-ideas for API visualizations:
+Is there a relationship between a country's GDP and Measles cases?
 
--   GPD vs cases by country
-
--   homicide rates vs cases by country
-
--   (cant use any time data really since the statistics arent attatched to a time its just general country data
+```{r}
+meta_data |>
+  group_by(country) |>
+  summarize(
+    mean_measles = mean(measles_total, na.rm = TRUE),
+    gdp_per_capita = mean(gdp_per_capita, na.rm = TRUE),
+    .groups = "drop") |>
+  filter(mean_measles != 0 & gdp_per_capita != 0) |>
+  ggplot(aes(x = gdp_per_capita, y = mean_measles)) +
+  geom_point(alpha = 0.7, size = 3) +
+  scale_x_log10() +
+  scale_y_log10() +
+  labs(
+    title = "Country GDP per Capita and Mean Measles Cases",
+    x = "GDP per Capita (log scale)",
+    y = "Mean Measles Cases (log scale)") +
+  theme_minimal()
+```
