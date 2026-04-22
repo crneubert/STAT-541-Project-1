@@ -1,0 +1,21 @@
+project:
+  type: website
+  output-dir: .
+
+website:
+  title: "Stats Project 1"
+  search: true
+  navbar:
+    left:
+      - text: "Project Analysis"
+        href: ./index.qmd
+format:
+  html:
+    page-layout: full
+    code-tools: true
+    embed-resources: true
+    theme: superhero 
+
+
+
+

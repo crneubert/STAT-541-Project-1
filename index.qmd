@@ -13,12 +13,6 @@ execute:
   warning: false
 ---
 
-## Table of Contents:
-
--   [Week 1](#week-1)\
--   [Week 2](#week-2)
--   [Week 3](#week-3)
-
 ## Load Libraries
 
 ```{r}
@@ -256,7 +250,7 @@ Combining the monthly cases data with the scraped data.
 
 ```{r}
 
-scraped_data <- read.csv(here("site","data", "weather-scrape.csv")) 
+scraped_data <- read.csv(here("data", "weather-scrape.csv")) 
 
 cases_month3 <- left_join(cases_month2, scraped_data, by = c("month_abb" = "month",  "country_scrape" = "country" ), 
                           relationship = "many-to-many")
@@ -352,3 +346,14 @@ meta_data |>
     y = "Mean Measles Cases (log scale)") +
   theme_minimal()
 ```
+
+## Week 4
+
+
+
+
+
+
+
+
+
