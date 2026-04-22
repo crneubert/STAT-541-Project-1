@@ -23,6 +23,7 @@ library(tidyjson)
 library(jsonlite)
 library(rvest)
 library(here)
+
 ```
 
 # Week 1 {#week-1}
@@ -281,6 +282,7 @@ get_country_demo <- function(country_name){
 }
 
 country_demographic <- map_dfr(country_names, get_country_demo)
+
 ```
 
 **Descripion:** The Country Demographic Datset is taken from API Ninja's Country API, which provides geographic, demographic, and economic statistics about every country in the world. Each row represents a single country and each column is a statistic about that country, of which there are 187 countries included and over 40 different statistics.
@@ -294,6 +296,7 @@ meta_data <- left_join(cases_month3,
                        country_demographic,
                        by = c("country" = "name"),
                        relationship = "many-to-many")
+
 ```
 
 ## Week 3 Delieverables
@@ -347,13 +350,33 @@ meta_data |>
   theme_minimal()
 ```
 
-## Week 4
+# Week 4      
+
+## Visualization 1    
+
+```{r}
+library(ggridges)
+
+meta_data |>
+  count(country, measles_total) |>
+  slice_max(measles_total, n=10) |>
+  arrange(desc(n)) |>
+  ggplot(aes(x = measles_total,
+             y = country,
+             fill = country)) +
+  geom_density_ridges(alpha = 0.5, scale = 1)
+
+
+```
+
+
+## Visualization 2    
 
 
 
 
 
-
+## Statistical Model    
 
 
 

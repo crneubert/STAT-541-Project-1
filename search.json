@@ -105,10 +105,24 @@
     "text": "Week 3 Delieverables\nVisualization:\nIs there a relationship between mean temperature measles cases throughout the year?\n\nmeta_data |&gt;\n  group_by(month, month_abb) |&gt;\n  summarize(\n    mean_measles = mean(measles_total, na.rm = TRUE),\n    mean_temp = mean(mean_temp, na.rm = TRUE),\n    .groups = \"drop\") |&gt;\n  mutate(\n    mean_measles = as.numeric(scale(mean_measles)),\n    mean_temp = as.numeric(scale(mean_temp)),\n    month_abb = factor(month_abb, levels = month.abb)) |&gt;\n  pivot_longer(\n    cols = c(mean_measles, mean_temp),\n    names_to = \"variable\",\n    values_to = \"value\") |&gt;\n  ggplot(aes(x = month_abb, y = value, color = variable, group = variable)) +\n  geom_line(linewidth = 1) +\n  labs(\n    title = \"Measles Cases and Temperature by Month\",\n    x = \"Month\",\n    y = \"Standardized Value\",\n    color = \"Variable\") +\n  theme_minimal()\n\n\n\n\n\n\n\n\nIs there a relationship between a country’s GDP and Measles cases?\n\nmeta_data |&gt;\n  group_by(country) |&gt;\n  summarize(\n    mean_measles = mean(measles_total, na.rm = TRUE),\n    gdp_per_capita = mean(gdp_per_capita, na.rm = TRUE),\n    .groups = \"drop\") |&gt;\n  filter(mean_measles != 0 & gdp_per_capita != 0) |&gt;\n  ggplot(aes(x = gdp_per_capita, y = mean_measles)) +\n  geom_point(alpha = 0.7, size = 3) +\n  scale_x_log10() +\n  scale_y_log10() +\n  labs(\n    title = \"Country GDP per Capita and Mean Measles Cases\",\n    x = \"GDP per Capita (log scale)\",\n    y = \"Mean Measles Cases (log scale)\") +\n  theme_minimal()"
   },
   {
-    "objectID": "index.html#week-4",
-    "href": "index.html#week-4",
+    "objectID": "index.html#visualization-1",
+    "href": "index.html#visualization-1",
     "title": "Project 1",
-    "section": "Week 4",
-    "text": "Week 4"
+    "section": "Visualization 1",
+    "text": "Visualization 1\n\nlibrary(ggridges)\n\nmeta_data |&gt;\n  count(country, measles_total) |&gt;\n  slice_max(measles_total, n=10) |&gt;\n  arrange(desc(n)) |&gt;\n  ggplot(aes(x = measles_total,\n             y = country,\n             fill = country)) +\n  geom_density_ridges(alpha = 0.5, scale = 1)"
+  },
+  {
+    "objectID": "index.html#visualization-2",
+    "href": "index.html#visualization-2",
+    "title": "Project 1",
+    "section": "Visualization 2",
+    "text": "Visualization 2"
+  },
+  {
+    "objectID": "index.html#statistical-model",
+    "href": "index.html#statistical-model",
+    "title": "Project 1",
+    "section": "Statistical Model",
+    "text": "Statistical Model"
   }
 ]
