@@ -225,7 +225,6 @@ cases_month2 <- cases_month |>
       country_scrape = str_replace_all(country_scrape, " ", "-"))
 
 
-
 ```
 
 ## Web-scraped Data
@@ -241,9 +240,53 @@ cases_month2 <- cases_month |>
 
 ### Data scrape script
 
-The data scrape takes a long time, so I've moved it to it's own location to allow for easy rendering of this document.
+**As of week 4, we have stored the output and commented out the scrape. This
+dramatically reduced render time.**   
 
-The script is located [here](https://crneubert.github.io/STAT-541-Project-1/site/scripts/web-scrape.html).
+```{r}
+#country_vec <- c(unique(cases_month2$country_scrape))
+
+# grab_weather <- function(country) {
+#   base_url <- "https://weatherandclimate.com/"
+#   climate_url <- str_c(base_url,country) 
+#   
+#   result <- tryCatch({
+#       read_html(climate_url)
+#     }, error = function(e) {
+#       message("Failed for ", country, e$message)
+#       NULL
+#     })
+# 
+#   if (is.null(result)) {
+#     return(NULL) 
+#   } else {
+#     result |>
+#       html_element(".tb6") |>
+#       html_table() |>
+#       pivot_longer(col = Jan:Dec, names_to = "month", values_to = "stat") |> 
+#       filter(Month %in% c("Average precipitation mm (inches)", "Daily mean °C (°F)")) |>
+#       select(!Year) |>
+#       pivot_wider(names_from = "Month", values_from = "stat") |>
+#       rename(mean_temp = 2,
+#          mean_precip = 3) |>
+#       mutate(mean_temp = as.numeric(str_extract(mean_temp, "(?<=\\()[0-9.]+")),
+#             mean_precip = as.numeric(str_extract(mean_precip, "(?<=\\()[0-9.]+")),
+#             country = country) #got the regex case from AI looks for values in the ()
+# 
+#   }
+# }
+# 
+# scraped_weather <- map(.x = country_vec, .f = grab_weather) |>
+#   bind_rows(.id = "id")
+# 
+
+#write.csv(scraped_weather, "./site/data/weather-scrape.csv")
+
+
+
+
+
+```
 
 ## Meta Update
 
@@ -265,24 +308,28 @@ cases_month3 <- left_join(cases_month2, scraped_data, by = c("month_abb" = "mont
 
 Loading in the data using API key.
 
+**As of week 4, we have stored the output and commented out the api call. This
+dramatically reduced render time.**     
+
+
 ```{r}
-country_names <- unique(cases_year$country)
-
-api_key <- "hmz9wf1cpAko2WM4Fz3oPInaZIt44Uf9uh3VFfxD"
-
-base_url <- "https://api.api-ninjas.com/v1/country"
-
-get_country_demo <- function(country_name){
-  GET(url = base_url,
-      add_headers('X-API-Key' = api_key),
-      query = list(name = country_name)) |>
-  content("text", encoding = "utf-8") |>
-  fromJSON() |>
-  as.data.frame()
-}
-
-country_demographic <- map_dfr(country_names, get_country_demo)
-
+#country_names <- unique(cases_year$country)
+#
+#api_key <- "hmz9wf1cpAko2WM4Fz3oPInaZIt44Uf9uh3VFfxD"
+#
+#base_url <- "https://api.api-ninjas.com/v1/country"
+#
+#get_country_demo <- function(country_name){
+#  GET(url = base_url,
+#      add_headers('X-API-Key' = api_key),
+#      query = list(name = country_name)) |>
+#  content("text", encoding = "utf-8") |>
+#  fromJSON() |>
+#  as.data.frame()
+#}
+#
+#country_demographic <- map_dfr(country_names, get_country_demo)
+#
 ```
 
 **Descripion:** The Country Demographic Datset is taken from API Ninja's Country API, which provides geographic, demographic, and economic statistics about every country in the world. Each row represents a single country and each column is a statistic about that country, of which there are 187 countries included and over 40 different statistics.
@@ -292,10 +339,19 @@ country_demographic <- map_dfr(country_names, get_country_demo)
 Combining the combined scraped data and monthly cases with the country demographic area.
 
 ```{r}
+# cleaning script to comment out api calls
+# country_demographic_clean <- country_demographic |>
+#   unnest(currency, names_sep = "_")
+# 
+# write_csv(country_demographic_clean, "data/country_demographic.csv")
+# 
+api_load <- read.csv("./data/country_demographic.csv")
+
 meta_data <- left_join(cases_month3,
-                       country_demographic,
+                       api_load,
                        by = c("country" = "name"),
                        relationship = "many-to-many")
+
 
 ```
 
@@ -350,22 +406,61 @@ meta_data |>
   theme_minimal()
 ```
 
-# Week 4      
+# Week 4 {#week-4}     
 
 ## Visualization 1    
+Using a tile plot and correlation matix,  
+
+- How are climate, natural resources and emissions related to monthly 
+measles/rubella cases?    
 
 ```{r}
-library(ggridges)
+#| fig-height: 8
+#| fig-width: 15
+
+library(corrr)
+
+make_titles <- function(x){
+  # expects a character or factor as an input
+  stopifnot(is.character(x) | is.factor(x))
+  
+  # remove the units at the end of the name
+  str_remove(x, pattern = "(g|mm)$") |> 
+  # replace all _ with spaces
+  str_replace_all(pattern = "_", replacement = " ") |> 
+  # remove extra whitespace on left 
+  str_trim(side = "both") |> 
+  # convert the first letter of each word to upper case
+  str_to_title()
+}
+
 
 meta_data |>
-  count(country, measles_total) |>
-  slice_max(measles_total, n=10) |>
-  arrange(desc(n)) |>
-  ggplot(aes(x = measles_total,
-             y = country,
-             fill = country)) +
-  geom_density_ridges(alpha = 0.5, scale = 1)
-
+  select(month, measles_total, measles_epi_linked, rubella_total, 
+         rubella_epi_linked, mean_temp, mean_precip, surface_area,
+         forested_area, co2_emissions, threatened_species, internet_users) |>
+  correlate(method = "pearson",
+            use = "pairwise.complete.obs") |>
+  rename(term1 = term) |> 
+  pivot_longer(cols = -term1, 
+               names_to = "term2", 
+               values_to = "correlation") |>
+  mutate(
+    across(.cols = c(term1, term2), 
+           .fns = ~ make_titles(.x)
+           )
+    ) |> 
+  ggplot(mapping = aes(x = term1,
+                       y = term2, 
+                       fill = correlation)) +
+  geom_tile() +
+  labs(x = "", 
+       y = "", 
+       title = "Correlation Between Measles/Rubella Cases and Biological Factors", 
+       fill = "Correlation"
+       ) +
+  theme_bw() +
+  scale_fill_viridis_c(option = "B")
 
 ```
 

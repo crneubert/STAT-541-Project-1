@@ -9,12 +9,21 @@ website:
     left:
       - text: "Project Analysis"
         href: ./index.qmd
+      - text: "Week 1"
+        href: ./index.qmd#week-1
+      - text: "Week 2"
+        href: ./index.qmd#week-2
+      - text: "Week 3"
+        href: ./index.qmd#week-3
+      - text: "Week 4"
+        href: ./index.qmd#week-4
+
 format:
   html:
     page-layout: full
     code-tools: true
     embed-resources: true
-    theme: superhero 
+    theme: united 
 
 
 
