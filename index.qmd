@@ -244,43 +244,46 @@ cases_month2 <- cases_month |>
 dramatically reduced render time.**   
 
 ```{r}
-#country_vec <- c(unique(cases_month2$country_scrape))
+#| eval: false
 
-# grab_weather <- function(country) {
-#   base_url <- "https://weatherandclimate.com/"
-#   climate_url <- str_c(base_url,country) 
-#   
-#   result <- tryCatch({
-#       read_html(climate_url)
-#     }, error = function(e) {
-#       message("Failed for ", country, e$message)
-#       NULL
-#     })
-# 
-#   if (is.null(result)) {
-#     return(NULL) 
-#   } else {
-#     result |>
-#       html_element(".tb6") |>
-#       html_table() |>
-#       pivot_longer(col = Jan:Dec, names_to = "month", values_to = "stat") |> 
-#       filter(Month %in% c("Average precipitation mm (inches)", "Daily mean °C (°F)")) |>
-#       select(!Year) |>
-#       pivot_wider(names_from = "Month", values_from = "stat") |>
-#       rename(mean_temp = 2,
-#          mean_precip = 3) |>
-#       mutate(mean_temp = as.numeric(str_extract(mean_temp, "(?<=\\()[0-9.]+")),
-#             mean_precip = as.numeric(str_extract(mean_precip, "(?<=\\()[0-9.]+")),
-#             country = country) #got the regex case from AI looks for values in the ()
-# 
-#   }
-# }
-# 
-# scraped_weather <- map(.x = country_vec, .f = grab_weather) |>
-#   bind_rows(.id = "id")
-# 
+country_vec <- c(unique(cases_month2$country_scrape))
 
-#write.csv(scraped_weather, "./site/data/weather-scrape.csv")
+grab_weather <- function(country) {
+   base_url <- "https://weatherandclimate.com/"
+   climate_url <- str_c(base_url,country) 
+   
+   result <- tryCatch({
+       read_html(climate_url)
+     }, error = function(e) {
+       message("Failed for ", country, e$message)
+       NULL
+     })
+ 
+   if (is.null(result)) {
+     return(NULL) 
+   } else {
+     result |>
+       html_element(".tb6") |>
+       html_table() |>
+       pivot_longer(col = Jan:Dec, names_to = "month", values_to = "stat") |> 
+       filter(Month %in% c("Average precipitation mm (inches)", "Daily mean °C (°F)")) |>
+       select(!Year) |>
+       pivot_wider(names_from = "Month", values_from = "stat") |>
+       rename(mean_temp = 2,
+          mean_precip = 3) |>
+       mutate(mean_temp = as.numeric(str_extract(mean_temp, "(?<=\\()[0-9.]+")),
+             mean_precip = as.numeric(str_extract(mean_precip, "(?<=\\()[0-9.]+")),
+             country = country) #got the regex case from AI looks for values in the ()
+ 
+   }
+ }
+ 
+ scraped_weather <- map(.x = country_vec, .f = grab_weather) |>
+   bind_rows(.id = "id")
+ 
+
+# save for loading more than once
+# write.csv(scraped_weather, "./site/data/weather-scrape.csv")
 
 
 
@@ -313,23 +316,25 @@ dramatically reduced render time.**
 
 
 ```{r}
-#country_names <- unique(cases_year$country)
-#
-#api_key <- "hmz9wf1cpAko2WM4Fz3oPInaZIt44Uf9uh3VFfxD"
-#
-#base_url <- "https://api.api-ninjas.com/v1/country"
-#
-#get_country_demo <- function(country_name){
-#  GET(url = base_url,
-#      add_headers('X-API-Key' = api_key),
-#      query = list(name = country_name)) |>
-#  content("text", encoding = "utf-8") |>
-#  fromJSON() |>
-#  as.data.frame()
-#}
-#
-#country_demographic <- map_dfr(country_names, get_country_demo)
-#
+#| eval: false
+
+country_names <- unique(cases_year$country)
+
+api_key <- "hmz9wf1cpAko2WM4Fz3oPInaZIt44Uf9uh3VFfxD"
+
+base_url <- "https://api.api-ninjas.com/v1/country"
+
+get_country_demo <- function(country_name){
+  GET(url = base_url,
+      add_headers('X-API-Key' = api_key),
+      query = list(name = country_name)) |>
+  content("text", encoding = "utf-8") |>
+  fromJSON() |>
+  as.data.frame()
+}
+
+country_demographic <- map_dfr(country_names, get_country_demo)
+
 ```
 
 **Descripion:** The Country Demographic Datset is taken from API Ninja's Country API, which provides geographic, demographic, and economic statistics about every country in the world. Each row represents a single country and each column is a statistic about that country, of which there are 187 countries included and over 40 different statistics.
@@ -339,12 +344,12 @@ dramatically reduced render time.**
 Combining the combined scraped data and monthly cases with the country demographic area.
 
 ```{r}
-# cleaning script to comment out api calls
+# cleaning script to not need api calls
 # country_demographic_clean <- country_demographic |>
 #   unnest(currency, names_sep = "_")
 # 
 # write_csv(country_demographic_clean, "data/country_demographic.csv")
-# 
+
 api_load <- read.csv("./data/country_demographic.csv")
 
 meta_data <- left_join(cases_month3,
