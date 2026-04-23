@@ -240,9 +240,6 @@ cases_month2 <- cases_month |>
 
 ### Data scrape script
 
-**As of week 4, we have stored the output and commented out the scrape. This
-dramatically reduced render time.**   
-
 ```{r}
 #| eval: false
 
@@ -285,10 +282,6 @@ grab_weather <- function(country) {
 # save for loading more than once
 # write.csv(scraped_weather, "./site/data/weather-scrape.csv")
 
-
-
-
-
 ```
 
 ## Meta Update
@@ -310,10 +303,6 @@ cases_month3 <- left_join(cases_month2, scraped_data, by = c("month_abb" = "mont
 ## Country Demographic Dataset
 
 Loading in the data using API key.
-
-**As of week 4, we have stored the output and commented out the api call. This
-dramatically reduced render time.**     
-
 
 ```{r}
 #| eval: false
