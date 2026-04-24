@@ -23,6 +23,7 @@ library(tidyjson)
 library(jsonlite)
 library(rvest)
 library(here)
+library(broom)
 
 ```
 
@@ -40,7 +41,7 @@ cases_year <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience
 
 The following data concerns measles and rubella cases. The data was from the World Health Organization (WHO) between 2012 and June 6, 2025. This includes monthly and yearly data across multiple countries grouped into WHO regions, where each row corresponds to a specific country within a region. The data is provisional and is early case reports by WHO member countries collected using each countries national surveillance systems. The data contains several types of case confirmations (suspected, clinical, epidemiologically linked, and lab confirmed) as well as population count data in the yearly data set. The data was collected to monitor measles and rubella cases worldwide in order to support public health decision making and vaccination strategies.
 
--   [Data source](https://github.com/rfordatascience/tidytuesday/blob/main/data/2025/2025-06-24/readme.md)
+- [Data source](https://github.com/rfordatascience/tidytuesday/blob/main/data/2025/2025-06-24/readme.md)
 
 ## Cleaning Performed
 
@@ -50,15 +51,15 @@ The given CSVs are cleaned mostly through formatting and data type conversions. 
 
 **To be answered by the data:**
 
--   How does the volume of measles cases change over time?
+- How does the volume of measles cases change over time?
 
--   Which areas of the world contribute the most to measles cases?
+- Which areas of the world contribute the most to measles cases?
 
 **To be answered using supplemental data:**
 
--   How does vaccination rates affect measles cases by country? (using vaccination data sets likely from WHO)
+- How does vaccination rates affect measles cases by country? (using vaccination data sets likely from WHO)
 
--   Are measles case rates correlated with GPD and development level of a country? (get GDP and country data from somewhere like gapminder)
+- Are measles case rates correlated with GPD and development level of a country? (get GDP and country data from somewhere like gapminder)
 
 ## Sketches of Possible Plots
 
@@ -73,7 +74,7 @@ The given CSVs are cleaned mostly through formatting and data type conversions. 
 **Summary 1**\
 - Using cases_month, across all years is there monthly variation in mean lab confirmed measels/rubella cases?
 
--   Use of unmodified column, custom function
+- Use of unmodified column, custom function
 
 ```{r}
 
@@ -114,7 +115,7 @@ monthly_sums(cases_month, month)
 **Summary 2**\
 - Using measels_year, which regions of the world contribute the most to measles cases? (only looking at 2025)
 
--   Use of custom function, iteration, 1 unmodified column, 1 modified column
+- Use of custom function, iteration, 1 unmodified column, 1 modified column
 
 ```{r}
 
@@ -232,11 +233,11 @@ cases_month2 <- cases_month |>
 **Source**\
 - [WeatherandClimate](https://weatherandclimate.com/)
 
--   WeatherAndClimate is an online climate zone and data finder for 80,000+ locations in the world based on Köppen climate classification. The data is updated every 10 minutes and historical data is back to 1980.\
--   From the base page, users can click countries to visualize monthly temperatures and precipitation.\
--   I will be scraping the table (class = tb6) at the url - ex. https://weatherandclimate.com/american-samoa
--   Countries are lowercase and hyphen separated.
--   Units will be imperial.
+- WeatherAndClimate is an online climate zone and data finder for 80,000+ locations in the world based on Köppen climate classification. The data is updated every 10 minutes and historical data is back to 1980.\
+- From the base page, users can click countries to visualize monthly temperatures and precipitation.\
+- I will be scraping the table (class = tb6) at the url - ex. https://weatherandclimate.com/american-samoa
+- Countries are lowercase and hyphen separated.
+- Units will be imperial.
 
 ### Data scrape script
 
@@ -400,13 +401,13 @@ meta_data |>
   theme_minimal()
 ```
 
-# Week 4 {#week-4}     
+# Week 4 {#week-4}
 
-## Visualization 1    
-Using a tile plot and correlation matix,  
+## Visualization 1
 
-- How are climate, natural resources and emissions related to monthly 
-measles/rubella cases?    
+Using a tile plot and correlation matix,
+
+- How are climate, natural resources and emissions related to monthly measles/rubella cases?
 
 ```{r}
 #| fig-height: 8
@@ -458,14 +459,52 @@ meta_data |>
 
 ```
 
+## Visualization 2
 
-## Visualization 2    
+## Statistical Model
 
+```{r}
+#| warning: false
 
+linearreg_df <- meta_data |>
+  select(
+    country,
+    year,
+    gdp,
+    population,
+    measles_total,
+    mean_temp,
+    urban_population,
+    tourists) |>
+  mutate(
+    gdp_per_capita = gdp / population,
+    measles_rate_100k = (measles_total / population) * 100000,
+    log_gdp_per_capita = log(gdp_per_capita),
+    log_measles_rate_100k = log(measles_rate_100k + 1),
+    log_tourists = log(tourists))
+```
 
-
-
-## Statistical Model    
-
-
-
+```{r}
+  lm(
+    log_measles_rate_100k ~ log_gdp_per_capita + mean_temp + log_tourists + urban_population, 
+    data = linearreg_df) |>
+  tidy() |>
+  gt() |>
+  fmt_number(
+    columns = c(estimate, std.error, statistic, p.value),
+    decimals = 3
+  ) |>
+  cols_label(
+    term = md("**Predictor**"),
+    estimate = md("**Estimate**"),
+    std.error = md("**Std. Error**"),
+    statistic = md("**t-value**"),
+    p.value = md("**p-value**")
+  ) |>
+  tab_header(
+    title = md("**Regression Model Results**"),
+    subtitle = "Predicting logged measles case rate per 100,000"
+  ) |>
+  tab_source_note(
+    source_note = "Linear regression using GDP per capita, mean temperature, number of tourists, and urban population as predictors.")
+```
