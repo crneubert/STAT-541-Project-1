@@ -41,7 +41,7 @@ cases_year <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience
 
 The following data concerns measles and rubella cases. The data was from the World Health Organization (WHO) between 2012 and June 6, 2025. This includes monthly and yearly data across multiple countries grouped into WHO regions, where each row corresponds to a specific country within a region. The data is provisional and is early case reports by WHO member countries collected using each countries national surveillance systems. The data contains several types of case confirmations (suspected, clinical, epidemiologically linked, and lab confirmed) as well as population count data in the yearly data set. The data was collected to monitor measles and rubella cases worldwide in order to support public health decision making and vaccination strategies.
 
-- [Data source](https://github.com/rfordatascience/tidytuesday/blob/main/data/2025/2025-06-24/readme.md)
+-   [Data source](https://github.com/rfordatascience/tidytuesday/blob/main/data/2025/2025-06-24/readme.md)
 
 ## Cleaning Performed
 
@@ -51,15 +51,15 @@ The given CSVs are cleaned mostly through formatting and data type conversions. 
 
 **To be answered by the data:**
 
-- How does the volume of measles cases change over time?
+-   How does the volume of measles cases change over time?
 
-- Which areas of the world contribute the most to measles cases?
+-   Which areas of the world contribute the most to measles cases?
 
 **To be answered using supplemental data:**
 
-- How does vaccination rates affect measles cases by country? (using vaccination data sets likely from WHO)
+-   How does vaccination rates affect measles cases by country? (using vaccination data sets likely from WHO)
 
-- Are measles case rates correlated with GPD and development level of a country? (get GDP and country data from somewhere like gapminder)
+-   Are measles case rates correlated with GPD and development level of a country? (get GDP and country data from somewhere like gapminder)
 
 ## Sketches of Possible Plots
 
@@ -74,7 +74,7 @@ The given CSVs are cleaned mostly through formatting and data type conversions. 
 **Summary 1**\
 - Using cases_month, across all years is there monthly variation in mean lab confirmed measels/rubella cases?
 
-- Use of unmodified column, custom function
+-   Use of unmodified column, custom function
 
 ```{r}
 
@@ -115,7 +115,7 @@ monthly_sums(cases_month, month)
 **Summary 2**\
 - Using measels_year, which regions of the world contribute the most to measles cases? (only looking at 2025)
 
-- Use of custom function, iteration, 1 unmodified column, 1 modified column
+-   Use of custom function, iteration, 1 unmodified column, 1 modified column
 
 ```{r}
 
@@ -233,11 +233,11 @@ cases_month2 <- cases_month |>
 **Source**\
 - [WeatherandClimate](https://weatherandclimate.com/)
 
-- WeatherAndClimate is an online climate zone and data finder for 80,000+ locations in the world based on Köppen climate classification. The data is updated every 10 minutes and historical data is back to 1980.\
-- From the base page, users can click countries to visualize monthly temperatures and precipitation.\
-- I will be scraping the table (class = tb6) at the url - ex. https://weatherandclimate.com/american-samoa
-- Countries are lowercase and hyphen separated.
-- Units will be imperial.
+-   WeatherAndClimate is an online climate zone and data finder for 80,000+ locations in the world based on Köppen climate classification. The data is updated every 10 minutes and historical data is back to 1980.\
+-   From the base page, users can click countries to visualize monthly temperatures and precipitation.\
+-   I will be scraping the table (class = tb6) at the url - ex. https://weatherandclimate.com/american-samoa
+-   Countries are lowercase and hyphen separated.
+-   Units will be imperial.
 
 ### Data scrape script
 
@@ -407,7 +407,7 @@ meta_data |>
 
 Using a tile plot and correlation matix,
 
-- How are climate, natural resources and emissions related to monthly measles/rubella cases?
+-   How are climate, natural resources and emissions related to monthly measles/rubella cases?
 
 ```{r}
 #| fig-height: 8
@@ -460,6 +460,48 @@ meta_data |>
 ```
 
 ## Visualization 2
+
+```{r}
+#| warning: false
+
+
+library(scales)
+
+meta_data |>
+  group_by(country, year) |>
+  summarise(annual_measles = sum(measles_total, na.rm=TRUE),
+            gdp_per_capita = first(gdp_per_capita),
+            region = first(region.x),
+            .groups = "drop") |>
+  group_by(country) |>
+  summarise(mean_annual_measles = mean(annual_measles),
+            gdp_per_capita = first(gdp_per_capita),
+            region = first(region),
+            .grpups = "drop") |>
+
+  ggplot(aes(x = gdp_per_capita, y = mean_annual_measles)) +
+  geom_hex(bins = 20) +
+  scale_x_log10(labels = dollar_format()) +
+  scale_y_log10(labels = comma_format()) +
+  scale_fill_gradient(low = "blueviolet",
+                      high = "goldenrod") +
+  labs(
+    title = "GDP per Capita vs Mean Annual Measles Cases by Country",
+    x = "GDP per capita (log scale)",
+    y = "Mean annual measles cases (log scale)",
+    fill = "No. Countries",
+    alt = paste(
+      "Hexbin plot of countries comparing GDP per capita and mean annual measles
+      cases.",
+      "Both axes are on log scale.",
+      "Contries are concentrated along a negatively correlated line, with many 
+      contries having low GDP and high measles cases, while many others have low
+      measles cases and high GDP."
+    )
+  ) +
+  theme_bw() 
+
+```
 
 ## Statistical Model
 
