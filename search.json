@@ -4,14 +4,14 @@
     "href": "index.html",
     "title": "Project 1",
     "section": "",
-    "text": "library(tidyverse)\nlibrary(gt)\nlibrary(httr)\nlibrary(tidyjson)\nlibrary(jsonlite)\nlibrary(rvest)\nlibrary(here)"
+    "text": "library(tidyverse)\nlibrary(gt)\nlibrary(httr)\nlibrary(tidyjson)\nlibrary(jsonlite)\nlibrary(rvest)\nlibrary(here)\nlibrary(broom)"
   },
   {
     "objectID": "index.html#load-libraries",
     "href": "index.html#load-libraries",
     "title": "Project 1",
     "section": "",
-    "text": "library(tidyverse)\nlibrary(gt)\nlibrary(httr)\nlibrary(tidyjson)\nlibrary(jsonlite)\nlibrary(rvest)\nlibrary(here)"
+    "text": "library(tidyverse)\nlibrary(gt)\nlibrary(httr)\nlibrary(tidyjson)\nlibrary(jsonlite)\nlibrary(rvest)\nlibrary(here)\nlibrary(broom)"
   },
   {
     "objectID": "index.html#loading-in-the-data",
@@ -109,13 +109,13 @@
     "href": "index.html#visualization-2",
     "title": "Project 1",
     "section": "Visualization 2",
-    "text": "Visualization 2"
+    "text": "Visualization 2\n\nlibrary(scales)\n\nmeta_data |&gt;\n  group_by(country, year) |&gt;\n  summarise(annual_measles = sum(measles_total, na.rm=TRUE),\n            gdp_per_capita = first(gdp_per_capita),\n            region = first(region.x),\n            .groups = \"drop\") |&gt;\n  group_by(country) |&gt;\n  summarise(mean_annual_measles = mean(annual_measles),\n            gdp_per_capita = first(gdp_per_capita),\n            region = first(region),\n            .grpups = \"drop\") |&gt;\n\n  ggplot(aes(x = gdp_per_capita, y = mean_annual_measles)) +\n  geom_hex(bins = 20) +\n  scale_x_log10(labels = dollar_format()) +\n  scale_y_log10(labels = comma_format()) +\n  scale_fill_gradient(low = \"blueviolet\",\n                      high = \"goldenrod\") +\n  labs(\n    title = \"GDP per Capita vs Mean Annual Measles Cases by Country\",\n    x = \"GDP per capita (log scale)\",\n    y = \"Mean annual measles cases (log scale)\",\n    fill = \"No. Countries\",\n    alt = paste(\n      \"Hexbin plot of countries comparing GDP per capita and mean annual measles\n      cases.\",\n      \"Both axes are on log scale.\",\n      \"Contries are concentrated along a negatively correlated line, with many \n      contries having low GDP and high measles cases, while many others have low\n      measles cases and high GDP.\"\n    )\n  ) +\n  theme_bw()"
   },
   {
     "objectID": "index.html#statistical-model",
     "href": "index.html#statistical-model",
     "title": "Project 1",
     "section": "Statistical Model",
-    "text": "Statistical Model"
+    "text": "Statistical Model\n\nlinearreg_df &lt;- meta_data |&gt;\n  select(\n    country,\n    year,\n    gdp,\n    population,\n    measles_total,\n    mean_temp,\n    urban_population,\n    tourists) |&gt;\n  mutate(\n    gdp_per_capita = gdp / population,\n    measles_rate_100k = (measles_total / population) * 100000,\n    log_gdp_per_capita = log(gdp_per_capita),\n    log_measles_rate_100k = log(measles_rate_100k + 1),\n    log_tourists = log(tourists))\n\n\n  lm(\n    log_measles_rate_100k ~ log_gdp_per_capita + mean_temp + log_tourists + urban_population, \n    data = linearreg_df) |&gt;\n  tidy() |&gt;\n  gt() |&gt;\n  fmt_number(\n    columns = c(estimate, std.error, statistic, p.value),\n    decimals = 3\n  ) |&gt;\n  cols_label(\n    term = md(\"**Predictor**\"),\n    estimate = md(\"**Estimate**\"),\n    std.error = md(\"**Std. Error**\"),\n    statistic = md(\"**t-value**\"),\n    p.value = md(\"**p-value**\")\n  ) |&gt;\n  tab_header(\n    title = md(\"**Regression Model Results**\"),\n    subtitle = \"Predicting logged measles case rate per 100,000\"\n  ) |&gt;\n  tab_source_note(\n    source_note = \"Linear regression using GDP per capita, mean temperature, number of tourists, and urban population as predictors.\")\n\n\n\n\n\n\n\nRegression Model Results\n\n\nPredicting logged measles case rate per 100,000\n\n\nPredictor\nEstimate\nStd. Error\nt-value\np-value\n\n\n\n\n(Intercept)\n1.327\n0.143\n9.275\n0.000\n\n\nlog_gdp_per_capita\n−0.408\n0.024\n−17.129\n0.000\n\n\nmean_temp\n0.010\n0.001\n8.213\n0.000\n\n\nlog_tourists\n0.196\n0.013\n15.187\n0.000\n\n\nurban_population\n−0.003\n0.001\n−1.983\n0.047\n\n\n\nLinear regression using GDP per capita, mean temperature, number of tourists, and urban population as predictors."
   }
 ]
