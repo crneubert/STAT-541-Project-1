@@ -1,5 +1,5 @@
 ---
-title: "Project 1"
+title: "Measles cases across the world"
 author: "Carson Neubert, Ben Parker, Minh Ho-Hoang"
 format: 
   html:
@@ -7,15 +7,26 @@ format:
     code-tools: true
     page-layout: full
     toc: true 
-editor: visual
+    code-fold: true
+    editor: visual
 execute:
   message: false
   warning: false
 ---
 
-## Load Libraries
+
+![](./measles.jpg)
+
+## Data descriptions    
+
+#### World Health Organization (WHO)   
+We are exploring measles and rubella cases across the world. The data was collected and [published](https://immunizationdata.who.int/global?topic=Provisional-measles-and-rubella-data&location=) through the World Health Organization (WHO) portal, but for ease of access scripts to access the data were provided by [tidytuesday](https://github.com/rfordatascience/tidytuesday/blob/main/data/2025/2025-06-24/readme.md).
+
+WHO has published monthly measles and rubella data from 193 countries from June 2012 to 2025. The data is provisional and is early case reports by WHO member countries collected using each countries national surveillance systems. The data contains several types of case confirmations (suspected, clinical, epidemiologically linked, and lab confirmed) as well as population count data in the yearly data set. The data was collected to monitor measles and rubella cases worldwide in order to support public health decision making and vaccination strategies.
+
 
 ```{r}
+#needed libraries
 library(tidyverse)
 library(gt)
 library(httr)
@@ -25,30 +36,231 @@ library(rvest)
 library(here)
 library(broom)
 
-```
-
-# Week 1 {#week-1}
-
-## Loading in the Data
-
-```{r}
 # reading in from github
 cases_month <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-06-24/cases_month.csv')
 cases_year <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-06-24/cases_year.csv')
+
+# need to do some cleaning for the webscraping process
+cases_month2 <- cases_month |>
+  mutate(month_abb = recode_values(month, 
+                        1 ~ "Jan",
+                        2 ~ "Feb",
+                        3 ~ "Mar",
+                        4 ~ "Apr",
+                        5 ~ "May",
+                        6 ~ "Jun",
+                        7 ~ "Jul",
+                        8 ~ "Aug",
+                        9 ~ "Sep",
+                        10 ~ "Oct",
+                        11 ~ "Nov",
+                        12 ~ "Dec"),
+      country_scrape = str_to_lower(country),
+      country_scrape = str_replace_all(country_scrape, " ", "-"))
 ```
 
-## Data Description
+#### Weather and Climate Data        
+To investigate the relationship between seasonal patterns and measles cases, we've web scraped data provided by [WeatherandClimate](https://weatherandclimate.com/). WeatherAndClimate is an online climate zone and data finder for 80,000+ locations in the world based on Köppen climate classification. WeatherAndClimate does not disclose the exact source or data collection method. They provide historical records dating to 1980, but we will scrape mean monthly temperature and precipitation data across this time period. The data was collected to monitor Earth's climate systems which have broad implications on socio-economic conditions.   
 
-The following data concerns measles and rubella cases. The data was from the World Health Organization (WHO) between 2012 and June 6, 2025. This includes monthly and yearly data across multiple countries grouped into WHO regions, where each row corresponds to a specific country within a region. The data is provisional and is early case reports by WHO member countries collected using each countries national surveillance systems. The data contains several types of case confirmations (suspected, clinical, epidemiologically linked, and lab confirmed) as well as population count data in the yearly data set. The data was collected to monitor measles and rubella cases worldwide in order to support public health decision making and vaccination strategies.
 
--   [Data source](https://github.com/rfordatascience/tidytuesday/blob/main/data/2025/2025-06-24/readme.md)
+```{r}
+#| eval: false
 
-## Cleaning Performed
+country_vec <- c(unique(cases_month2$country_scrape))
 
-The given CSVs are cleaned mostly through formatting and data type conversions. All variable names have been standardized into all lowercase with underscores. In the cases_month dataset, numeric variables were converted from a string to have a proper numeric type. In cases_year dataset, the first row was removed because it contained a duplicate header. Column names were also changed for simplicity (iso_country_code -\> iso3 for example). Additionally, the dataset contains derived variables such as total measles and rubella cases and incidence rates per 100000 people.
+grab_weather <- function(country) {
+   base_url <- "https://weatherandclimate.com/"
+   climate_url <- str_c(base_url,country) 
+   
+   result <- tryCatch({
+       read_html(climate_url)
+     }, error = function(e) {
+       message("Failed for ", country, e$message)
+       NULL
+     })
+ 
+   if (is.null(result)) {
+     return(NULL) 
+   } else {
+     result |>
+       html_element(".tb6") |>
+       html_table() |>
+       pivot_longer(col = Jan:Dec, names_to = "month", values_to = "stat") |> 
+       filter(Month %in% c("Average precipitation mm (inches)", "Daily mean °C (°F)")) |>
+       select(!Year) |>
+       pivot_wider(names_from = "Month", values_from = "stat") |>
+       rename(mean_temp = 2,
+          mean_precip = 3) |>
+       mutate(mean_temp = as.numeric(str_extract(mean_temp, "(?<=\\()[0-9.]+")),
+             mean_precip = as.numeric(str_extract(mean_precip, "(?<=\\()[0-9.]+")),
+             country = country) #got the regex case from AI looks for values in the ()
+ 
+   }
+ }
+ 
+ scraped_weather <- map(.x = country_vec, .f = grab_weather) |>
+   bind_rows(.id = "id")
+ 
+
+# save for loading more than once
+# write.csv(scraped_weather, "./site/data/weather-scrape.csv")
+
+```
+
+#### Country Demographic Dataset   
+The Country Demographic Datset is taken from API Ninja's Country API, which provides geographic, demographic, and economic statistics about every country in the world. Each row represents a single country and each column is a statistic about that country, of which there are 187 countries included and over 40 different statistics.
+
+```{r}
+#| eval: false
+
+country_names <- unique(cases_year$country)
+
+api_key <- "hmz9wf1cpAko2WM4Fz3oPInaZIt44Uf9uh3VFfxD"
+
+base_url <- "https://api.api-ninjas.com/v1/country"
+
+get_country_demo <- function(country_name){
+  GET(url = base_url,
+      add_headers('X-API-Key' = api_key),
+      query = list(name = country_name)) |>
+  content("text", encoding = "utf-8") |>
+  fromJSON() |>
+  as.data.frame()
+}
+
+country_demographic <- map_dfr(country_names, get_country_demo)
+# after the join... 2756 of the 22,780 datapoints don't have temp or precip data
+# 19 of the 173 countries failed in the iteration
+# cleaning script to not need api calls
+# country_demographic_clean <- country_demographic |>
+#   unnest(currency, names_sep = "_")
+# 
+# write_csv(country_demographic_clean, "data/country_demographic.csv")
+```
+
+#### Final Dataset
+```{r}
+api_load <- read.csv("./data/country_demographic.csv")
+# load csv climate data
+scraped_data <- read.csv(here("data", "weather-scrape.csv")) 
+
+cases_month3 <- left_join(cases_month2, scraped_data, by = c("month_abb" = "month",  "country_scrape" = "country" ), 
+                          relationship = "many-to-many")
+meta_data <- left_join(cases_month3,
+                       api_load,
+                       by = c("country" = "name"),
+                       relationship = "many-to-many")
+```
 
 ## Research Questions
 
+### Climate and Measles Rates   
+Are there seasonal patterns in measles outbreaks across different regions?     
+To answer this, we will explore monthly mean lab confirmed measles/rubella cases in the northern and southern hemisphere. We will ignore changes across years, and focus on monthly variation. We will compare India and Indonesia, who are both in the [top 10 countries](https://www.cdc.gov/global-measles-vaccination/data-research/global-measles-outbreaks/index.html) with the worst measles outbreaks as of 2023. 
+
+```{r}
+# Use of unmodified column, custom function
+monthly_sums <- function(df, group, countries) {
+  if (is.data.frame(df)) {
+    df |>
+      filter(country %in% c(countries)) |>
+      group_by({{group}}, country) |>
+      summarize(
+                `Mean Measles Cases` = mean(measles_lab_confirmed, na.rm = TRUE),
+                `Mean Rubella Cases` = mean(rubella_lab_confirmed, na.rm = TRUE),
+                .groups = "drop") |>
+      mutate(month_abb = factor(month_abb, levels = month.abb)) |>
+      arrange(month_abb) |>
+      pivot_longer(cols = c(`Mean Measles Cases`, `Mean Rubella Cases`),
+                   names_to =  "Statistic",
+                   values_to = "value") |>
+      pivot_wider(names_from = month_abb,
+                  values_from = value) |>
+      group_by(country) |>
+      gt() |>
+      tab_style(
+        style = cell_text(weight = "bold"),
+        locations = list(cells_column_labels(), cells_row_groups())) |> 
+      tab_header(
+        title = md("Mean Lab Confirmed Measles and Rubella Cases Per Month")) |>
+      tab_source_note(
+        source_note = md("*Table 1: Mean monthly lab-confirmed measles and rubella cases over the course of the study (2012-2025).*")) |>
+      fmt_number(
+        columns  = where(is.numeric),
+        decimals = 1) |>
+      data_color(
+        columns = everything(),
+        palette = "Oranges"
+       )
+  } else {
+  stop('Must input a dataframe')
+  }
+}
+
+monthly_sums(df = meta_data, 
+             group = month_abb,
+            countries = c("Indonesia" , "India"))
+
+```
+
+From our analysis we see a strong relationship between month and measles/rubella cases. This confirms the long held notion of a northern hemisphere "flu season" during the winter. The relationship in Indonesia is more subtle and may be indicative of their tropical climate.   
+
+Next, we will next investigate how climate, natural resources and emissions are related to measles/rubella cases. 
+
+```{r}
+#| fig-height: 8
+#| fig-width: 15
+#| fig-alt: "A plot showing the relationship between climate, natural resources and emissions data and measles/rubella cases."
+#| fig-cap: "Figure 1: Correlation matrix showing the relationship between climate, natural resources and emissions data and measles/rubella cases."
+
+
+library(corrr)
+make_titles <- function(x){
+  # expects a character or factor as an input
+  stopifnot(is.character(x) | is.factor(x))
+  
+  # remove the units at the end of the name
+  str_remove(x, pattern = "(g|mm)$") |> 
+  # replace all _ with spaces
+  str_replace_all(pattern = "_", replacement = " ") |> 
+  # remove extra whitespace on left 
+  str_trim(side = "both") |> 
+  # convert the first letter of each word to upper case
+  str_to_title()
+}
+
+meta_data |>
+  select(month, measles_total, measles_epi_linked, rubella_total, 
+         rubella_epi_linked, mean_temp, mean_precip, surface_area,
+         forested_area, co2_emissions, threatened_species, internet_users) |>
+  correlate(method = "pearson",
+            use = "pairwise.complete.obs") |>
+  rename(term1 = term) |> 
+  pivot_longer(cols = -term1, 
+               names_to = "term2", 
+               values_to = "correlation") |>
+  mutate(
+    across(.cols = c(term1, term2), 
+           .fns = ~ make_titles(.x)
+           )
+    ) |> 
+  ggplot(mapping = aes(x = term1,
+                       y = term2, 
+                       fill = correlation)) +
+  geom_tile() +
+  labs(x = "", 
+       y = "", 
+       title = "Correlation Between Measles/Rubella Cases and Biological Factors", 
+       fill = "Correlation"
+       ) +
+  theme_bw() +
+  scale_fill_viridis_c(option = "B")
+
+```
+
+When comparing climate and natural resources, we see expected results such as a positive correlation between mean precipitation and forested area. However, we found suprising results indicating a positive correlation between Co2 emissions and measles/rubella cases (Figure 1). 
+
+## Original
 **To be answered by the data:**
 
 -   How does the volume of measles cases change over time?
@@ -60,57 +272,6 @@ The given CSVs are cleaned mostly through formatting and data type conversions. 
 -   How does vaccination rates affect measles cases by country? (using vaccination data sets likely from WHO)
 
 -   Are measles case rates correlated with GPD and development level of a country? (get GDP and country data from somewhere like gapminder)
-
-## Sketches of Possible Plots
-
-![](images/861248618234.png){fig-align="center"}
-
-![](images/082450803485092345.png)
-
-# Week 2 {#week-2}
-
-## Unmodified data summaries
-
-**Summary 1**\
-- Using cases_month, across all years is there monthly variation in mean lab confirmed measels/rubella cases?
-
--   Use of unmodified column, custom function
-
-```{r}
-
-monthly_sums <- function(df, group) {
-  if (is.data.frame(df)) {
-    df |>
-      group_by({{group}}) |>
-      summarize(
-                `Mean Measles Cases` = mean(measles_lab_confirmed, na.rm = TRUE),
-                `Mean Rubella Cases` = mean(rubella_lab_confirmed, na.rm = TRUE)) |>
-      mutate(month_abb = month.abb[as.integer(month)]) |>
-      pivot_longer(cols = c(`Mean Measles Cases`, `Mean Rubella Cases`),
-                   names_to =  "Statistic",
-                   values_to = "value") |>
-      select(-month) |>
-      pivot_wider(names_from = month_abb,
-                  values_from = value) |>
-      gt() |>
-      tab_style(
-        style = cell_text(weight = "bold"),
-        locations = cells_column_labels()) |> 
-      tab_header(
-        title = md("Mean Lab Confirmed Measles and Rubella Cases Per Month")) |>
-      tab_source_note(
-        source_note = md("*Table 1: Mean monthly lab-confirmed measles and rubella cases over the course of the study (2012-2025).*")) |>
-      fmt_number(
-        columns  = where(is.numeric),
-        decimals = 1)
-  } else {
-  stop('Must input a dataframe')
-  }
-}
-
-monthly_sums(cases_month, month)
-
-```
 
 **Summary 2**\
 - Using measels_year, which regions of the world contribute the most to measles cases? (only looking at 2025)
@@ -200,161 +361,9 @@ map(years, get_lab_quality) |>
     source_note = md("*Table 3: Average lab confirmation share by year (2012–2025)*"))
 ```
 
-# Week 3 {#week-3}
-
-## Dataset Preparation
-
-Need to do some cleaning of the cases_month meta dataset to better match the data for joining.
-
-```{r}
-# need to do some cleaning for the webscraping process
-cases_month2 <- cases_month |>
-  mutate(month_abb = recode_values(month, 
-                        1 ~ "Jan",
-                        2 ~ "Feb",
-                        3 ~ "Mar",
-                        4 ~ "Apr",
-                        5 ~ "May",
-                        6 ~ "Jun",
-                        7 ~ "Jul",
-                        8 ~ "Aug",
-                        9 ~ "Sep",
-                        10 ~ "Oct",
-                        11 ~ "Nov",
-                        12 ~ "Dec"),
-      country_scrape = str_to_lower(country),
-      country_scrape = str_replace_all(country_scrape, " ", "-"))
 
 
-```
-
-## Web-scraped Data
-
-**Source**\
-- [WeatherandClimate](https://weatherandclimate.com/)
-
--   WeatherAndClimate is an online climate zone and data finder for 80,000+ locations in the world based on Köppen climate classification. The data is updated every 10 minutes and historical data is back to 1980.\
--   From the base page, users can click countries to visualize monthly temperatures and precipitation.\
--   I will be scraping the table (class = tb6) at the url - ex. https://weatherandclimate.com/american-samoa
--   Countries are lowercase and hyphen separated.
--   Units will be imperial.
-
-### Data scrape script
-
-```{r}
-#| eval: false
-
-country_vec <- c(unique(cases_month2$country_scrape))
-
-grab_weather <- function(country) {
-   base_url <- "https://weatherandclimate.com/"
-   climate_url <- str_c(base_url,country) 
-   
-   result <- tryCatch({
-       read_html(climate_url)
-     }, error = function(e) {
-       message("Failed for ", country, e$message)
-       NULL
-     })
- 
-   if (is.null(result)) {
-     return(NULL) 
-   } else {
-     result |>
-       html_element(".tb6") |>
-       html_table() |>
-       pivot_longer(col = Jan:Dec, names_to = "month", values_to = "stat") |> 
-       filter(Month %in% c("Average precipitation mm (inches)", "Daily mean °C (°F)")) |>
-       select(!Year) |>
-       pivot_wider(names_from = "Month", values_from = "stat") |>
-       rename(mean_temp = 2,
-          mean_precip = 3) |>
-       mutate(mean_temp = as.numeric(str_extract(mean_temp, "(?<=\\()[0-9.]+")),
-             mean_precip = as.numeric(str_extract(mean_precip, "(?<=\\()[0-9.]+")),
-             country = country) #got the regex case from AI looks for values in the ()
- 
-   }
- }
- 
- scraped_weather <- map(.x = country_vec, .f = grab_weather) |>
-   bind_rows(.id = "id")
- 
-
-# save for loading more than once
-# write.csv(scraped_weather, "./site/data/weather-scrape.csv")
-
-```
-
-## Meta Update
-
-Combining the monthly cases data with the scraped data.
-
-```{r}
-
-scraped_data <- read.csv(here("data", "weather-scrape.csv")) 
-
-cases_month3 <- left_join(cases_month2, scraped_data, by = c("month_abb" = "month",  "country_scrape" = "country" ), 
-                          relationship = "many-to-many")
-
-# after the join... 2756 of the 22,780 datapoints don't have temp or precip data
-# makes sense 19 of the 173 countries failed in the iteration
-
-```
-
-## Country Demographic Dataset
-
-Loading in the data using API key.
-
-```{r}
-#| eval: false
-
-country_names <- unique(cases_year$country)
-
-api_key <- "hmz9wf1cpAko2WM4Fz3oPInaZIt44Uf9uh3VFfxD"
-
-base_url <- "https://api.api-ninjas.com/v1/country"
-
-get_country_demo <- function(country_name){
-  GET(url = base_url,
-      add_headers('X-API-Key' = api_key),
-      query = list(name = country_name)) |>
-  content("text", encoding = "utf-8") |>
-  fromJSON() |>
-  as.data.frame()
-}
-
-country_demographic <- map_dfr(country_names, get_country_demo)
-
-```
-
-**Descripion:** The Country Demographic Datset is taken from API Ninja's Country API, which provides geographic, demographic, and economic statistics about every country in the world. Each row represents a single country and each column is a statistic about that country, of which there are 187 countries included and over 40 different statistics.
-
-## Meta Dataset
-
-Combining the combined scraped data and monthly cases with the country demographic area.
-
-```{r}
-# cleaning script to not need api calls
-# country_demographic_clean <- country_demographic |>
-#   unnest(currency, names_sep = "_")
-# 
-# write_csv(country_demographic_clean, "data/country_demographic.csv")
-
-api_load <- read.csv("./data/country_demographic.csv")
-
-meta_data <- left_join(cases_month3,
-                       api_load,
-                       by = c("country" = "name"),
-                       relationship = "many-to-many")
-
-
-```
-
-## Week 3 Delieverables
-
-**Visualization:**\
 Is there a relationship between mean temperature measles cases throughout the year?
-
 ```{r}
 meta_data |>
   group_by(month, month_abb) |>
@@ -381,7 +390,6 @@ meta_data |>
 ```
 
 Is there a relationship between a country's GDP and Measles cases?
-
 ```{r}
 meta_data |>
   group_by(country) |>
@@ -401,70 +409,10 @@ meta_data |>
   theme_minimal()
 ```
 
-# Week 4 {#week-4}
 
-## Visualization 1
-
-Using a tile plot and correlation matix,
-
--   How are climate, natural resources and emissions related to monthly measles/rubella cases?
-
-```{r}
-#| fig-height: 8
-#| fig-width: 15
-
-library(corrr)
-
-make_titles <- function(x){
-  # expects a character or factor as an input
-  stopifnot(is.character(x) | is.factor(x))
-  
-  # remove the units at the end of the name
-  str_remove(x, pattern = "(g|mm)$") |> 
-  # replace all _ with spaces
-  str_replace_all(pattern = "_", replacement = " ") |> 
-  # remove extra whitespace on left 
-  str_trim(side = "both") |> 
-  # convert the first letter of each word to upper case
-  str_to_title()
-}
-
-
-meta_data |>
-  select(month, measles_total, measles_epi_linked, rubella_total, 
-         rubella_epi_linked, mean_temp, mean_precip, surface_area,
-         forested_area, co2_emissions, threatened_species, internet_users) |>
-  correlate(method = "pearson",
-            use = "pairwise.complete.obs") |>
-  rename(term1 = term) |> 
-  pivot_longer(cols = -term1, 
-               names_to = "term2", 
-               values_to = "correlation") |>
-  mutate(
-    across(.cols = c(term1, term2), 
-           .fns = ~ make_titles(.x)
-           )
-    ) |> 
-  ggplot(mapping = aes(x = term1,
-                       y = term2, 
-                       fill = correlation)) +
-  geom_tile() +
-  labs(x = "", 
-       y = "", 
-       title = "Correlation Between Measles/Rubella Cases and Biological Factors", 
-       fill = "Correlation"
-       ) +
-  theme_bw() +
-  scale_fill_viridis_c(option = "B")
-
-```
-
-## Visualization 2
 
 ```{r}
 #| warning: false
-
-
 library(scales)
 
 meta_data |>
