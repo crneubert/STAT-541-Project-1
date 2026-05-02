@@ -14,16 +14,15 @@ execute:
   warning: false
 ---
 
-
 ![](./measles.jpg)
 
-## Data descriptions    
+## Data Context
 
-#### World Health Organization (WHO)   
+#### World Health Organization (WHO)
+
 We are exploring measles and rubella cases across the world. The data was collected and [published](https://immunizationdata.who.int/global?topic=Provisional-measles-and-rubella-data&location=) through the World Health Organization (WHO) portal, but for ease of access scripts to access the data were provided by [tidytuesday](https://github.com/rfordatascience/tidytuesday/blob/main/data/2025/2025-06-24/readme.md).
 
 WHO has published monthly measles and rubella data from 193 countries from June 2012 to 2025. The data is provisional and is early case reports by WHO member countries collected using each countries national surveillance systems. The data contains several types of case confirmations (suspected, clinical, epidemiologically linked, and lab confirmed) as well as population count data in the yearly data set. The data was collected to monitor measles and rubella cases worldwide in order to support public health decision making and vaccination strategies.
-
 
 ```{r}
 #needed libraries
@@ -59,9 +58,9 @@ cases_month2 <- cases_month |>
       country_scrape = str_replace_all(country_scrape, " ", "-"))
 ```
 
-#### Weather and Climate Data        
-To investigate the relationship between seasonal patterns and measles cases, we've web scraped data provided by [WeatherandClimate](https://weatherandclimate.com/). WeatherAndClimate is an online climate zone and data finder for 80,000+ locations in the world based on Köppen climate classification. WeatherAndClimate does not disclose the exact source or data collection method. They provide historical records dating to 1980, but we will scrape mean monthly temperature and precipitation data across this time period. The data was collected to monitor Earth's climate systems which have broad implications on socio-economic conditions.   
+#### Weather and Climate Data
 
+To investigate the relationship between seasonal patterns and measles cases, we've web scraped data provided by [WeatherandClimate](https://weatherandclimate.com/). WeatherAndClimate is an online climate zone and data finder for 80,000+ locations in the world based on Köppen climate classification. WeatherAndClimate does not disclose the exact source or data collection method. They provide historical records dating to 1980, but we will scrape mean monthly temperature and precipitation data across this time period. The data was collected to monitor Earth's climate systems which have broad implications on socio-economic conditions.
 
 ```{r}
 #| eval: false
@@ -107,7 +106,8 @@ grab_weather <- function(country) {
 
 ```
 
-#### Country Demographic Dataset   
+#### Country Demographic Dataset
+
 The Country Demographic Datset is taken from API Ninja's Country API, which provides geographic, demographic, and economic statistics about every country in the world. Each row represents a single country and each column is a statistic about that country, of which there are 187 countries included and over 40 different statistics.
 
 ```{r}
@@ -139,6 +139,7 @@ country_demographic <- map_dfr(country_names, get_country_demo)
 ```
 
 #### Final Dataset
+
 ```{r}
 api_load <- read.csv("./data/country_demographic.csv")
 # load csv climate data
@@ -154,9 +155,10 @@ meta_data <- left_join(cases_month3,
 
 ## Research Questions
 
-### Climate, Geography and Measles Rates   
-Are there seasonal patterns in measles outbreaks across different regions?     
-To answer this, we will explore monthly mean lab confirmed measles/rubella cases in the northern and southern hemisphere. We will ignore changes across years, and focus on monthly variation. We will compare India and Indonesia, who are both in the [top 10 countries](https://www.cdc.gov/global-measles-vaccination/data-research/global-measles-outbreaks/index.html) with the worst measles outbreaks as of 2023. 
+### Climate, Geography and Measles Rates
+
+Are there seasonal patterns in measles outbreaks across different regions?\
+To answer this, we will explore monthly mean lab confirmed measles/rubella cases in the northern and southern hemisphere. We will ignore changes across years, and focus on monthly variation. We will compare India and Indonesia, who are both in the [top 10 countries](https://www.cdc.gov/global-measles-vaccination/data-research/global-measles-outbreaks/index.html) with the worst measles outbreaks as of 2023.
 
 ```{r}
 # Use of unmodified column, custom function
@@ -203,9 +205,9 @@ monthly_sums(df = meta_data,
 
 ```
 
-From our analysis we see a strong relationship between month and measles/rubella cases. This confirms the long held notion of a northern hemisphere "flu season" during the winter. The relationship in Indonesia is more subtle and may be indicative of their tropical climate.   
+From our analysis we see a strong relationship between month and measles/rubella cases. This confirms the long held notion of a northern hemisphere "flu season" during the winter. The relationship in Indonesia is more subtle and may be indicative of their tropical climate.
 
-Next, we will next investigate how climate, natural resources and emissions are related to measles/rubella cases. 
+Next, we will next investigate how climate, natural resources and emissions are related to measles/rubella cases.
 
 ```{r}
 #| fig-height: 8
@@ -258,9 +260,7 @@ meta_data |>
 
 ```
 
-When comparing climate and natural resources, we see expected results such as a positive correlation between mean precipitation and forested area. However, we found suprising results indicating a positive correlation between Co2 emissions and measles/rubella cases (Figure 1). 
-
-
+When comparing climate and natural resources, we see expected results such as a positive correlation between mean precipitation and forested area. However, we found suprising results indicating a positive correlation between Co2 emissions and measles/rubella cases (Figure 1).
 
 ```{r}
 
@@ -314,150 +314,58 @@ map(regions, region_burden) |>
   ) 
 ```
 
+### Measles Cases From Country to Country
+
+Does the impact of measles vary across countries? If so, what factors might contribute to those differences?
+
+We first examined the relationship between a country’s economic standing and its measles cases. Since graphing all 200 countries would produce a cluttered visualization, we focused on the five richest and five poorest countries and compared how their measles cases changed over time. These countries were identified using a [Wikipedia page](https://en.wikipedia.org/wiki/List_of_countries_by_GDP_(PPP)_per_capita) ranking countries by GDP (PPP) per capita.
 
 
-
-
-## Original
-**To be answered by the data:**
-
--   How does the volume of measles cases change over time?
-
--   Which areas of the world contribute the most to measles cases?
-
-**To be answered using supplemental data:**
-
--   How does vaccination rates affect measles cases by country? (using vaccination data sets likely from WHO)
-
--   Are measles case rates correlated with GPD and development level of a country? (get GDP and country data from somewhere like gapminder)
-
-**Summary 2**\
-- Using measels_year, which regions of the world contribute the most to measles cases? (only looking at 2025)
-
--   Use of custom function, iteration, 1 unmodified column, 1 modified column
-
-**Summary 3:** Average lab quality across each year.
-
-Average lab quality is the proportion of lab confirmed measles cases and total reported measles cases (across all testing types).
-
-```{r}
-years <- sort(unique(cases_year$year))
-
-get_lab_quality <- function(y){
-  cases_year |>
-    filter(year == y)|>
-    mutate(lab_quality = measles_lab_confirmed / measles_total) |>
-    summarise(avg_lab_quality = mean(lab_quality, na.rm = TRUE),
-              .groups = "drop") |>
-    mutate(year = y)
-}
-
-map(years, get_lab_quality) |>
-  bind_rows() |>
-  select(year, avg_lab_quality) |>
-  gt() |>
-  tab_header(title = md("**Lab Confirmation Quality Over Time**")) |>
-  fmt_percent(columns = avg_lab_quality, decimals = 1) |>
-  cols_label(
-    year = "Year",
-    avg_lab_quality = "Average Lab Confirmation Share") |>
-  tab_style(style = cell_text(weight = "bold"),
-            locations = cells_column_labels()) |>
-  tab_source_note(
-    source_note = md("*Table 3: Average lab confirmation share by year (2012–2025)*"))
-```
 
 
 
-Is there a relationship between mean temperature measles cases throughout the year?
 ```{r}
-meta_data |>
-  group_by(month, month_abb) |>
-  summarize(
-    mean_measles = mean(measles_total, na.rm = TRUE),
-    mean_temp = mean(mean_temp, na.rm = TRUE),
-    .groups = "drop") |>
+richest_5 <- c("Singapore", "Ireland", "Luxembourg", "Norway", "Qatar")
+poorest_5 <- c("Burundi", "Central African Republic", "South Sudan", "Yemen", "Mozambique")
+
+timeseries_df <- meta_data |>
   mutate(
-    mean_measles = as.numeric(scale(mean_measles)),
-    mean_temp = as.numeric(scale(mean_temp)),
-    month_abb = factor(month_abb, levels = month.abb)) |>
-  pivot_longer(
-    cols = c(mean_measles, mean_temp),
-    names_to = "variable",
-    values_to = "value") |>
-  ggplot(aes(x = month_abb, y = value, color = variable, group = variable)) +
-  geom_line(linewidth = 1) +
-  labs(
-    title = "Measles Cases and Temperature by Month",
-    x = "Month",
-    y = "Standardized Value",
-    color = "Variable") +
-  theme_minimal()
-```
-
-Is there a relationship between a country's GDP and Measles cases?
-```{r}
-meta_data |>
-  group_by(country) |>
-  summarize(
-    mean_measles = mean(measles_total, na.rm = TRUE),
-    gdp_per_capita = mean(gdp_per_capita, na.rm = TRUE),
-    .groups = "drop") |>
-  filter(mean_measles != 0 & gdp_per_capita != 0) |>
-  ggplot(aes(x = gdp_per_capita, y = mean_measles)) +
-  geom_point(alpha = 0.7, size = 3) +
-  scale_x_log10() +
-  scale_y_log10() +
-  labs(
-    title = "Country GDP per Capita and Mean Measles Cases",
-    x = "GDP per Capita (log scale)",
-    y = "Mean Measles Cases (log scale)") +
-  theme_minimal()
-```
-
-
-
-```{r}
-#| warning: false
-library(scales)
-
-meta_data |>
-  group_by(country, year) |>
-  summarise(annual_measles = sum(measles_total, na.rm=TRUE),
-            gdp_per_capita = first(gdp_per_capita),
-            region = first(region.x),
-            .groups = "drop") |>
-  group_by(country) |>
-  summarise(mean_annual_measles = mean(annual_measles),
-            gdp_per_capita = first(gdp_per_capita),
-            region = first(region),
-            .grpups = "drop") |>
-
-  ggplot(aes(x = gdp_per_capita, y = mean_annual_measles)) +
-  geom_hex(bins = 20) +
-  scale_x_log10(labels = dollar_format()) +
-  scale_y_log10(labels = comma_format()) +
-  scale_fill_gradient(low = "blueviolet",
-                      high = "goldenrod") +
-  labs(
-    title = "GDP per Capita vs Mean Annual Measles Cases by Country",
-    x = "GDP per capita (log scale)",
-    y = "Mean annual measles cases (log scale)",
-    fill = "No. Countries",
-    alt = paste(
-      "Hexbin plot of countries comparing GDP per capita and mean annual measles
-      cases.",
-      "Both axes are on log scale.",
-      "Contries are concentrated along a negatively correlated line, with many 
-      contries having low GDP and high measles cases, while many others have low
-      measles cases and high GDP."
+    date = make_date(year, month, 1),
+  measles_per_100k = (measles_total / (population * 1000)) * 100000  ) |>
+  filter(country %in% c(richest_5, poorest_5)) |>
+  mutate(
+    wealth_group = case_when(
+      country %in% richest_5 ~ "Richest 5",
+      country %in% poorest_5 ~ "Poorest 5"
     )
-  ) +
-  theme_bw() 
-
+  )
 ```
 
-## Statistical Model
+```{r}
+#| fig-alt: Line plot of measles cases over time comparing five richest countries and five poorest countries from Wikipedia ranking. 
+
+ggplot(timeseries_df, aes(x = date, y = measles_per_100k, group = country, color = wealth_group)) +
+  geom_line(linewidth = 1, alpha = 0.85) +
+  scale_color_manual(
+    values = c("Richest 5" = "steelblue4", "Poorest 5" = "firebrick3")
+  ) +
+  labs(
+    title = "Adjusted Measles Rates Over Time (2012-2025)",
+    subtitle = "Top 5 richest vs bottom 5 poorest countries",
+    x = "Time",
+    y = "Measles Cases per 100,000 People",
+    color = "Group") +
+  theme_bw() +
+  theme(
+    plot.title = element_text(face = "bold"),
+    legend.position = "bottom")
+```
+
+From 2012 to 2025, the poorest five countries experienced higher measles case counts than the richest five countries. While measles cases in the richest group remained close to zero in the past 13 years, the poorest group showed repeated outbreak spikes, with large increases in more recent times. This suggests a strong association GDP and measles cases.
+
+
+
+## Data Model
 
 ```{r}
 #| warning: false
@@ -503,4 +411,141 @@ linearreg_df <- meta_data |>
   ) |>
   tab_source_note(
     source_note = "Linear regression using GDP per capita, mean temperature, number of tourists, and urban population as predictors.")
+```
+
+## Original
+
+**To be answered by the data:**
+
+- How does the volume of measles cases change over time?
+
+- Which areas of the world contribute the most to measles cases?
+
+**To be answered using supplemental data:**
+
+- How does vaccination rates affect measles cases by country? (using vaccination data sets likely from WHO)
+
+- Are measles case rates correlated with GPD and development level of a country? (get GDP and country data from somewhere like gapminder)
+
+**Summary 2**\
+- Using measels_year, which regions of the world contribute the most to measles cases? (only looking at 2025)
+
+- Use of custom function, iteration, 1 unmodified column, 1 modified column
+
+**Summary 3:** Average lab quality across each year.
+
+Average lab quality is the proportion of lab confirmed measles cases and total reported measles cases (across all testing types).
+
+```{r}
+years <- sort(unique(cases_year$year))
+
+get_lab_quality <- function(y){
+  cases_year |>
+    filter(year == y)|>
+    mutate(lab_quality = measles_lab_confirmed / measles_total) |>
+    summarise(avg_lab_quality = mean(lab_quality, na.rm = TRUE),
+              .groups = "drop") |>
+    mutate(year = y)
+}
+
+map(years, get_lab_quality) |>
+  bind_rows() |>
+  select(year, avg_lab_quality) |>
+  gt() |>
+  tab_header(title = md("**Lab Confirmation Quality Over Time**")) |>
+  fmt_percent(columns = avg_lab_quality, decimals = 1) |>
+  cols_label(
+    year = "Year",
+    avg_lab_quality = "Average Lab Confirmation Share") |>
+  tab_style(style = cell_text(weight = "bold"),
+            locations = cells_column_labels()) |>
+  tab_source_note(
+    source_note = md("*Table 3: Average lab confirmation share by year (2012–2025)*"))
+```
+
+Is there a relationship between mean temperature measles cases throughout the year?
+
+```{r}
+meta_data |>
+  group_by(month, month_abb) |>
+  summarize(
+    mean_measles = mean(measles_total, na.rm = TRUE),
+    mean_temp = mean(mean_temp, na.rm = TRUE),
+    .groups = "drop") |>
+  mutate(
+    mean_measles = as.numeric(scale(mean_measles)),
+    mean_temp = as.numeric(scale(mean_temp)),
+    month_abb = factor(month_abb, levels = month.abb)) |>
+  pivot_longer(
+    cols = c(mean_measles, mean_temp),
+    names_to = "variable",
+    values_to = "value") |>
+  ggplot(aes(x = month_abb, y = value, color = variable, group = variable)) +
+  geom_line(linewidth = 1) +
+  labs(
+    title = "Measles Cases and Temperature by Month",
+    x = "Month",
+    y = "Standardized Value",
+    color = "Variable") +
+  theme_minimal()
+```
+
+Is there a relationship between a country's GDP and Measles cases?
+
+```{r}
+meta_data |>
+  group_by(country) |>
+  summarize(
+    mean_measles = mean(measles_total, na.rm = TRUE),
+    gdp_per_capita = mean(gdp_per_capita, na.rm = TRUE),
+    .groups = "drop") |>
+  filter(mean_measles != 0 & gdp_per_capita != 0) |>
+  ggplot(aes(x = gdp_per_capita, y = mean_measles)) +
+  geom_point(alpha = 0.7, size = 3) +
+  scale_x_log10() +
+  scale_y_log10() +
+  labs(
+    title = "Country GDP per Capita and Mean Measles Cases",
+    x = "GDP per Capita (log scale)",
+    y = "Mean Measles Cases (log scale)") +
+  theme_minimal()
+```
+
+```{r}
+#| warning: false
+library(scales)
+
+meta_data |>
+  group_by(country, year) |>
+  summarise(annual_measles = sum(measles_total, na.rm=TRUE),
+            gdp_per_capita = first(gdp_per_capita),
+            region = first(region.x),
+            .groups = "drop") |>
+  group_by(country) |>
+  summarise(mean_annual_measles = mean(annual_measles),
+            gdp_per_capita = first(gdp_per_capita),
+            region = first(region),
+            .grpups = "drop") |>
+  ggplot(aes(x = gdp_per_capita, y = mean_annual_measles)) +
+  geom_hex(bins = 20) +
+  scale_x_log10(labels = dollar_format()) +
+  scale_y_log10(labels = comma_format()) +
+  scale_fill_gradient(low = "blueviolet",
+                      high = "goldenrod") +
+  labs(
+    title = "GDP per Capita vs Mean Annual Measles Cases by Country",
+    x = "GDP per capita (log scale)",
+    y = "Mean annual measles cases (log scale)",
+    fill = "No. Countries",
+    alt = paste(
+      "Hexbin plot of countries comparing GDP per capita and mean annual measles
+      cases.",
+      "Both axes are on log scale.",
+      "Contries are concentrated along a negatively correlated line, with many 
+      contries having low GDP and high measles cases, while many others have low
+      measles cases and high GDP."
+    )
+  ) +
+  theme_bw() 
+
 ```
