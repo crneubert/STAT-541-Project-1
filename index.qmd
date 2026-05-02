@@ -34,6 +34,8 @@ library(jsonlite)
 library(rvest)
 library(here)
 library(broom)
+library(ggridges)
+library(scales)
 
 # reading in from github
 cases_month <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-06-24/cases_month.csv')
@@ -156,9 +158,15 @@ meta_data <- left_join(cases_month3,
 ## Research Questions
 
 ### Climate, Geography and Measles Rates
+Our first analysis aims to isolate trends in measles rates across climatic factors, natural resources and geography. Specificially we aim to answer:
 
-Are there seasonal patterns in measles outbreaks across different regions?\
-To answer this, we will explore monthly mean lab confirmed measles/rubella cases in the northern and southern hemisphere. We will ignore changes across years, and focus on monthly variation. We will compare India and Indonesia, who are both in the [top 10 countries](https://www.cdc.gov/global-measles-vaccination/data-research/global-measles-outbreaks/index.html) with the worst measles outbreaks as of 2023.
+- Are there seasonal patterns in measles outbreaks across different regions?  
+
+- How are climate, natural resources and emissions related to measles/rubella cases?  
+
+- How are total measles cases spatially distributed throughout the world's regions?     
+
+To our first question, we will explore monthly mean lab confirmed measles/rubella cases in the northern and southern hemisphere. We will ignore changes across years, and focus on monthly variation. We will compare India and Indonesia, who are both in the [top 10 countries](https://www.cdc.gov/global-measles-vaccination/data-research/global-measles-outbreaks/index.html) with the worst measles outbreaks as of 2023.
 
 ```{r}
 # Use of unmodified column, custom function
@@ -202,10 +210,12 @@ monthly_sums <- function(df, group, countries) {
 monthly_sums(df = meta_data, 
              group = month_abb,
             countries = c("Indonesia" , "India"))
-
 ```
 
 From our analysis we see a strong relationship between month and measles/rubella cases. This confirms the long held notion of a northern hemisphere "flu season" during the winter. The relationship in Indonesia is more subtle and may be indicative of their tropical climate.
+
+
+
 
 Next, we will next investigate how climate, natural resources and emissions are related to measles/rubella cases.
 
@@ -262,10 +272,21 @@ meta_data |>
 
 When comparing climate and natural resources, we see expected results such as a positive correlation between mean precipitation and forested area. However, we found suprising results indicating a positive correlation between Co2 emissions and measles/rubella cases (Figure 1).
 
+Finally, we investigate spatial differences in measles cases from last year and compare the distributions of total measles cases across world regions (Figure 2). 
+
 ```{r}
 
+regions_df <- cases_year |>
+  mutate(region = recode_values(region,
+                    "EMRO" ~ "Eastern Mediterranean",
+                    "AFRO" ~ "Africa",
+                    "EURO" ~ "Europe",
+                    "SEARO" ~ "South-East Asia",
+                    "AMRO" ~ "Americas",
+                    "WPRO" ~ "Western Pacific"))
+
 region_burden <- function(region_name) {
-  cases_year |>
+  regions_df |>
     filter(year == 2025, region == region_name) |>
     mutate(measles_total = as.numeric(measles_total)) |>
     summarize(
@@ -274,19 +295,11 @@ region_burden <- function(region_name) {
     )
 }
 
-regions <- unique(cases_year$region)
+regions <- unique(regions_df$region)
 
 map(regions, region_burden) |>
   bind_rows(.id="id") |> 
-  mutate(pct_global = round(total_cases / sum(total_cases) * 100, 1),
-         region = region |>
-           recode_values(
-                    "EMRO" ~ "Eastern Mediterranean",
-                    "AFRO" ~ "Africa",
-                    "EURO" ~ "Europe",
-                    "SEARO" ~ "South-East Asia",
-                    "AMRO" ~ "Americas",
-                    "WPRO" ~ "Western Pacific")) |>
+  mutate(pct_global = round(total_cases / sum(total_cases) * 100, 1)) |>
   arrange(desc(total_cases)) |>
   select(!id) |>
   gt() |>
@@ -311,16 +324,46 @@ map(regions, region_burden) |>
   ) |>
   tab_source_note(
     source_note = md("*Table 2: Total measles cases and share of global burden by WHO region, 2025.*")
-  ) 
+  ) |>
+  data_color(
+        columns = everything(),
+        palette = "Oranges"
+       )
+
+
 ```
+
+
+```{r}
+#| fig-height: 8
+#| fig-width: 15
+#| fig-alt: "A plot showing the distributions of measles cases per year across world regions."
+#| fig-cap: "Figure 2: Comparison of the distribution of measles cases per year across world regions."
+
+regions_df |>
+  filter(measles_total <= 5000) |>
+  ggplot(aes(x = measles_total, y = fct_reorder(region, measles_total, 
+                                                .desc = FALSE), )) +
+  geom_density_ridges(aes(fill = region),
+                      alpha = 0.5, scale = 1,
+                      show.legend = FALSE) +
+  labs(x = "Total Measles Cases per Year", 
+       y = "", 
+       title = "Comparison of Measles Cases across World Regions"
+       ) +
+  theme(legend.position = "none") +
+  scale_x_continuous(labels = label_comma()) +
+  theme_bw() +
+  scale_fill_viridis_d(option = "B")
+
+```
+
 
 ### Measles Cases From Country to Country
 
 Does the impact of measles vary across countries? If so, what factors might contribute to those differences?
 
 We first examined the relationship between a country’s economic standing and its measles cases. Since graphing all 200 countries would produce a cluttered visualization, we focused on the five richest and five poorest countries and compared how their measles cases changed over time. These countries were identified using a [Wikipedia page](https://en.wikipedia.org/wiki/List_of_countries_by_GDP_(PPP)_per_capita) ranking countries by GDP (PPP) per capita.
-
-
 
 
 
