@@ -166,7 +166,7 @@ Our first analysis aims to isolate trends in measles rates across climatic facto
 
 - How are total measles cases spatially distributed throughout the world's regions?     
 
-To our first question, we will explore monthly mean lab confirmed measles/rubella cases in the northern and southern hemisphere. We will ignore changes across years, and focus on monthly variation. We will compare India and Indonesia, who are both in the [top 10 countries](https://www.cdc.gov/global-measles-vaccination/data-research/global-measles-outbreaks/index.html) with the worst measles outbreaks as of 2023.
+To better understand the relationship between climate and measles/rubella cases, we will explore monthly mean lab confirmed measles/rubella cases in the northern and southern hemisphere. We will ignore changes across years, and focus on monthly variation. We will compare India and Indonesia, who are both in the [top 10 countries](https://www.cdc.gov/global-measles-vaccination/data-research/global-measles-outbreaks/index.html) with the worst measles outbreaks as of 2023.
 
 ```{r}
 # Use of unmodified column, custom function
