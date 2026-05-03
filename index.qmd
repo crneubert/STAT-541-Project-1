@@ -406,6 +406,44 @@ ggplot(timeseries_df, aes(x = date, y = measles_per_100k, group = country, color
 
 From 2012 to 2025, the poorest five countries experienced higher measles case counts than the richest five countries. While measles cases in the richest group remained close to zero in the past 13 years, the poorest group showed repeated outbreak spikes, with large increases in more recent times. This suggests a strong association GDP and measles cases.
 
+While the time series plot compares measles rates between the richest and poorest country groups, it does not show the size of the economic difference between those groups. The following table will take a deeper dive into this discrepancy. 
+
+```{r}
+gdppc_for_countries <- function(data, rich_countries, poor_countries) {
+  data |>
+    mutate(
+      gdp_per_capita = (gdp / population) * 1000,
+      group = case_when(
+        country %in% rich_countries ~ "Richest 5",
+        country %in% poor_countries ~ "Poorest 5")) |>
+    filter(country %in% c(rich_countries, poor_countries)) |>
+    group_by(group, country) |>
+    arrange(desc(year), .by_group = TRUE) |>
+    summarize(
+      gdp_per_capita_usd = first(gdp_per_capita),
+      .groups = "drop") |>
+    arrange(group, desc(gdp_per_capita_usd)) |>
+    gt(groupname_col = "group") |>
+    fmt_currency(
+      columns = gdp_per_capita_usd,
+      currency = "USD",
+      decimals = 0) |>
+    cols_label(
+      country = "Country",
+      gdp_per_capita_usd = "GDP per Capita (USD)") |>
+    tab_header(
+      title = md("**GDP per Capita of Selected Richest and Poorest Countries**"),
+      subtitle = "Countries grouped using GDP per capita rankings") |>
+    tab_source_note(
+      source_note = "GDP per capita was calculated as GDP divided by population.
+      GDP appears to be stored in millions of USD, and population appears to be stored in thousands.") |>
+    tab_options(table.width = pct(65))}
+
+gdppc_for_countries(meta_data, richest_5, poorest_5)
+```
+
+It is important to note that because the countries were grouped using GDP per capita rankings, an economic gap between the two groups is expected. However, the size of this gap is not immediately visible from the time series plot alone. Based on the table, the selected richest countries have approximately 150 times higher GDP per capita than the selected poorest countries, highlighting the large economic difference between the groups.
+
 ## Data Model
 
 ```{r}
