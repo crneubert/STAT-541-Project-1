@@ -3,6 +3,7 @@ title: "Measles cases across the world"
 author: "Carson Neubert, Ben Parker, Minh Ho-Hoang"
 format: 
   html:
+    theme: cosmo
     embed-resources: true
     code-tools: true
     page-layout: full
@@ -161,11 +162,17 @@ meta_data <- left_join(cases_month3,
                        relationship = "many-to-many")
 ```
 
+Our final dataset is the three previous datasets joined together. The web-scrapped data was joined onto the measles case data by month and by country. The API fetched data was joined onto the result of the previous join by country. Thus, we have a single dataset containing statistics on measles cases, countries, and environmental factors.
+
 ## Research Questions
 
 ### Climate, Geography and Measles Rates
 
-Our first analysis aims to isolate trends in measles rates across climatic factors, natural resources and geography. Specificially we aim to answer:
+Our first analysis aims to isolate trends in measles rates across climatic factors, natural resources and geography. We aim to answer the following question:
+
+-   **How do climate and geography relate to measles and rubella cases across the world?**
+
+And more specifically:
 
 -   Are there seasonal patterns in measles outbreaks across different regions?
 
@@ -363,9 +370,67 @@ regions_df |>
 
 ### Measles Cases From Country to Country
 
-Does the impact of measles vary across countries? If so, what factors might contribute to those differences?
+The following analysis aims to answer the question below:
 
-We first examined the relationship between a country’s economic standing and its measles cases. Since graphing all 200 countries would produce a cluttered visualization, we focused on the five richest and five poorest countries and compared how their measles cases changed over time. These countries were identified using a [Wikipedia page](https://en.wikipedia.org/wiki/List_of_countries_by_GDP_(PPP)_per_capita) ranking countries by GDP (PPP) per capita.
+-   **Is measles prevalence associated with country-level economic and demographic characteristics?**
+
+More specifically:
+
+-   Does the impact of measles vary across countries?
+
+-   Is the prevalence of measles associated with the economic prosperity of a country?
+
+First we will examine which countries have the highest and lowest number of measles cases per year. Cases per 100,000 people is the preferred metric here, giving a better estimate on the prevalence of measles in a countries population.
+
+```{r}
+country_measles <- meta_data |>
+  group_by(country) |>
+  summarize(avg_yearly_measles_cases = mean(measles_total, na.rm = TRUE),
+            avg_population = mean(population, na.rm = TRUE)) |>
+  mutate(cases_per_100k = (avg_yearly_measles_cases / avg_population) * 100000) |>
+  filter(!is.na(cases_per_100k),
+         is.finite(cases_per_100k),
+         cases_per_100k != 0)
+
+rank_type <- c("Highest", "Lowest")
+
+get_rank <- function(rank_type) {
+  if (rank_type == "Highest") {
+    country_measles |>
+      slice_max(cases_per_100k, n = 5, with_ties = FALSE) %>%
+      mutate(group = "5 Highest Cases per 100,000")
+  } else {
+    country_measles |>
+      slice_min(cases_per_100k, n = 5, with_ties = FALSE) %>%
+      mutate(group = "5 Lowest Cases per 100,000")
+  }
+}
+
+table_data <- map_dfr(rank_type, get_rank)
+
+table_data |>
+  gt(groupname_col = "group") |>
+  cols_label(country = "Country",
+             avg_yearly_measles_cases = "Avg. Yearly Measles Cases",
+             avg_population = "Avg. Population",
+             cases_per_100k = "Cases per 100,000 People") |>
+  fmt_number(columns = c(avg_yearly_measles_cases,
+                         avg_population,
+                         cases_per_100k),
+             decimals = 2) |>
+  tab_header(title = "Countries with the Highest and Lowest Measles Cases per 100,000 People",
+             subtitle = "Based on average yearly measles cases and average population") |>
+  tab_style(style = cell_text(weight = "bold"),
+            locations = cells_row_groups()) |>
+  tab_style(style = cell_text(weight = "bold"),
+            locations = cells_title()) |>
+  tab_style(style = cell_text(weight = "bold"),
+            locations = cells_column_labels()) |>
+  tab_source_note(
+    source_note = "Countries are ranked by average yearly measles cases per 100,000 people. The table compares the five countries with the highest rates and the five countries with the lowest rates.")
+```
+
+We then examined the relationship between a country’s economic standing and its measles cases. Since graphing all 200 countries would produce a cluttered visualization, we focused on the five richest and five poorest countries and compared how their measles cases changed over time. These countries were identified using a [Wikipedia page](https://en.wikipedia.org/wiki/List_of_countries_by_GDP_(PPP)_per_capita) ranking countries by GDP (PPP) per capita.
 
 ```{r}
 richest_5 <- c("Singapore", "Ireland", "Luxembourg", "Norway", "Qatar")
@@ -406,7 +471,7 @@ ggplot(timeseries_df, aes(x = date, y = measles_per_100k, group = country, color
 
 From 2012 to 2025, the poorest five countries experienced higher measles case counts than the richest five countries. While measles cases in the richest group remained close to zero in the past 13 years, the poorest group showed repeated outbreak spikes, with large increases in more recent times. This suggests a strong association GDP and measles cases.
 
-While the time series plot compares measles rates between the richest and poorest country groups, it does not show the size of the economic difference between those groups. The following table will take a deeper dive into this discrepancy. 
+While the time series plot compares measles rates between the richest and poorest country groups, it does not show the size of the economic difference between those groups. The following table will take a deeper dive into this discrepancy.
 
 ```{r}
 gdppc_for_countries <- function(data, rich_countries, poor_countries) {
@@ -443,6 +508,49 @@ gdppc_for_countries(meta_data, richest_5, poorest_5)
 ```
 
 It is important to note that because the countries were grouped using GDP per capita rankings, an economic gap between the two groups is expected. However, the size of this gap is not immediately visible from the time series plot alone. Based on the table, the selected richest countries have approximately 150 times higher GDP per capita than the selected poorest countries, highlighting the large economic difference between the groups.
+
+Now, we will examine the relationship between GDP per capita and measles cases by country. Because our GDP data is taken at a single time for each country, we averaged measles cases per country, per year and plotted the average number of annual cases vs. GPD per capita. A Hexbin plot was also used as opposed to a scatterplot to better visualize the density of countries in certain GDP/case ratios.
+
+```{r}
+#| warning: false
+library(scales)
+
+meta_data |>
+  group_by(country, year) |>
+  summarise(annual_measles = sum(measles_total, na.rm=TRUE),
+            gdp_per_capita = first(gdp_per_capita),
+            region = first(region.x),
+            .groups = "drop") |>
+  group_by(country) |>
+  summarise(mean_annual_measles = mean(annual_measles),
+            gdp_per_capita = first(gdp_per_capita),
+            region = first(region),
+            .grpups = "drop") |>
+  ggplot(aes(x = gdp_per_capita, y = mean_annual_measles)) +
+  geom_hex(bins = 20) +
+  scale_x_log10(labels = dollar_format()) +
+  scale_y_log10(labels = comma_format()) +
+  scale_fill_gradient(low = "blueviolet",
+                      high = "goldenrod") +
+  labs(
+    title = "GDP per Capita vs Mean Annual Measles Cases by Country",
+    x = "GDP per capita (log scale)",
+    y = "Mean annual measles cases (log scale)",
+    fill = "Number of Countries",
+    alt = paste(
+      "Hexbin plot of countries comparing GDP per capita and mean annual measles
+      cases.",
+      "Both axes are on log scale.",
+      "Contries are concentrated along a negatively correlated line, with many 
+      contries having low GDP and high measles cases, while many others have low
+      measles cases and high GDP."
+    )
+  ) +
+  theme_bw() 
+
+```
+
+The following visualization shows that as GPD per capita increases, the mean annual measles cases decreases. This means that richer countries, on average, have less measles cases, which can be possibly attributed to better access to healthcare and quality of life.
 
 ## Data Model
 
@@ -492,139 +600,6 @@ linearreg_df <- meta_data |>
     source_note = "Linear regression using GDP per capita, mean temperature, number of tourists, and urban population as predictors.")
 ```
 
-## Original
+The regression model above examines whether country characteristics are associated with measles prevalence, using the log of measles cases per 100,000 people. GPD per capita has a significant negative association with measles prevalence (as indicated by the -0.408 coefficient estimate), meaning countries with higher GDP tend to have lower measles prevalence. Additionally, the number of tourists (log_tourists) is also associated with measles, such that countries with more tourists have more measles cases. Average temperature was also associated with measles, as hotter countries have more prevalence of the disease. Lastly, countries with larger urban populations tend to have less measles cases as there is a negative association between measles and urban population as well.
 
-**To be answered by the data:**
-
--   How does the volume of measles cases change over time?
-
--   Which areas of the world contribute the most to measles cases?
-
-**To be answered using supplemental data:**
-
--   How does vaccination rates affect measles cases by country? (using vaccination data sets likely from WHO)
-
--   Are measles case rates correlated with GPD and development level of a country? (get GDP and country data from somewhere like gapminder)
-
-**Summary 2**\
-- Using measels_year, which regions of the world contribute the most to measles cases? (only looking at 2025)
-
--   Use of custom function, iteration, 1 unmodified column, 1 modified column
-
-**Summary 3:** Average lab quality across each year.
-
-Average lab quality is the proportion of lab confirmed measles cases and total reported measles cases (across all testing types).
-
-```{r}
-years <- sort(unique(cases_year$year))
-
-get_lab_quality <- function(y){
-  cases_year |>
-    filter(year == y)|>
-    mutate(lab_quality = measles_lab_confirmed / measles_total) |>
-    summarise(avg_lab_quality = mean(lab_quality, na.rm = TRUE),
-              .groups = "drop") |>
-    mutate(year = y)
-}
-
-map(years, get_lab_quality) |>
-  bind_rows() |>
-  select(year, avg_lab_quality) |>
-  gt() |>
-  tab_header(title = md("**Lab Confirmation Quality Over Time**")) |>
-  fmt_percent(columns = avg_lab_quality, decimals = 1) |>
-  cols_label(
-    year = "Year",
-    avg_lab_quality = "Average Lab Confirmation Share") |>
-  tab_style(style = cell_text(weight = "bold"),
-            locations = cells_column_labels()) |>
-  tab_source_note(
-    source_note = md("*Table 3: Average lab confirmation share by year (2012–2025)*"))
-```
-
-Is there a relationship between mean temperature measles cases throughout the year?
-
-```{r}
-meta_data |>
-  group_by(month, month_abb) |>
-  summarize(
-    mean_measles = mean(measles_total, na.rm = TRUE),
-    mean_temp = mean(mean_temp, na.rm = TRUE),
-    .groups = "drop") |>
-  mutate(
-    mean_measles = as.numeric(scale(mean_measles)),
-    mean_temp = as.numeric(scale(mean_temp)),
-    month_abb = factor(month_abb, levels = month.abb)) |>
-  pivot_longer(
-    cols = c(mean_measles, mean_temp),
-    names_to = "variable",
-    values_to = "value") |>
-  ggplot(aes(x = month_abb, y = value, color = variable, group = variable)) +
-  geom_line(linewidth = 1) +
-  labs(
-    title = "Measles Cases and Temperature by Month",
-    x = "Month",
-    y = "Standardized Value",
-    color = "Variable") +
-  theme_minimal()
-```
-
-Is there a relationship between a country's GDP and Measles cases?
-
-```{r}
-meta_data |>
-  group_by(country) |>
-  summarize(
-    mean_measles = mean(measles_total, na.rm = TRUE),
-    gdp_per_capita = mean(gdp_per_capita, na.rm = TRUE),
-    .groups = "drop") |>
-  filter(mean_measles != 0 & gdp_per_capita != 0) |>
-  ggplot(aes(x = gdp_per_capita, y = mean_measles)) +
-  geom_point(alpha = 0.7, size = 3) +
-  scale_x_log10() +
-  scale_y_log10() +
-  labs(
-    title = "Country GDP per Capita and Mean Measles Cases",
-    x = "GDP per Capita (log scale)",
-    y = "Mean Measles Cases (log scale)") +
-  theme_minimal()
-```
-
-```{r}
-#| warning: false
-library(scales)
-
-meta_data |>
-  group_by(country, year) |>
-  summarise(annual_measles = sum(measles_total, na.rm=TRUE),
-            gdp_per_capita = first(gdp_per_capita),
-            region = first(region.x),
-            .groups = "drop") |>
-  group_by(country) |>
-  summarise(mean_annual_measles = mean(annual_measles),
-            gdp_per_capita = first(gdp_per_capita),
-            region = first(region),
-            .grpups = "drop") |>
-  ggplot(aes(x = gdp_per_capita, y = mean_annual_measles)) +
-  geom_hex(bins = 20) +
-  scale_x_log10(labels = dollar_format()) +
-  scale_y_log10(labels = comma_format()) +
-  scale_fill_gradient(low = "blueviolet",
-                      high = "goldenrod") +
-  labs(
-    title = "GDP per Capita vs Mean Annual Measles Cases by Country",
-    x = "GDP per capita (log scale)",
-    y = "Mean annual measles cases (log scale)",
-    fill = "No. Countries",
-    alt = paste(
-      "Hexbin plot of countries comparing GDP per capita and mean annual measles
-      cases.",
-      "Both axes are on log scale.",
-      "Contries are concentrated along a negatively correlated line, with many 
-      contries having low GDP and high measles cases, while many others have low
-      measles cases and high GDP."
-    )
-  ) +
-  theme_bw() 
-
-```
+Overall, our findings suggest that the impact of measles is not evenly distributed across countries. Countries differences in their measles prevalence, and those differences appear to be related to economic, demographic and environmental factors.
