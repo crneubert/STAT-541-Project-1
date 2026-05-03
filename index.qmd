@@ -110,7 +110,13 @@ grab_weather <- function(country) {
 
 #### Country Demographic Dataset
 
-The Country Demographic Datset is taken from API Ninja's Country API, which provides geographic, demographic, and economic statistics about every country in the world. Each row represents a single country and each column is a statistic about that country, of which there are 187 countries included and over 40 different statistics.
+The Country Demographic Dataset is taken from API Ninja's Country API, which provides geographic, demographic, and economic statistics about every country in the world. API Ninjas publishes the data through its Country API, but their documentation does not specify the original primary collector of each statistic. Variables in the dataset include: population, GPD, surface area, unemployment, homicide rate, infant mortality, fertility, and more.
+
+The observational unit in this dataset is a country, where each row represents one country and each column represents a country-level statistic. The exact dates at which country statistics were originally collected are not stated in the API documentation. Thus, the data used in this analysis represent the values returned by the API at the time we originally accessed it.
+
+The data was collected for this project by sending requests to the API Ninjas Country API and retrieving the given JSON objects. Each of these JSON objects contains country level statistics, which were then put into a dataset where each country became one observation and each statistic became a variable/column.
+
+The data was collected because it allows us to make comparisons between a country's economic, demographic, or geographic characteristics and how prevalent measles is in those countries. We hypothesize that such factors are associated with changes in measles cases and have retrieved them from this API to asses our hypothesis.
 
 ```{r}
 #| eval: false
@@ -158,13 +164,14 @@ meta_data <- left_join(cases_month3,
 ## Research Questions
 
 ### Climate, Geography and Measles Rates
+
 Our first analysis aims to isolate trends in measles rates across climatic factors, natural resources and geography. Specificially we aim to answer:
 
-- Are there seasonal patterns in measles outbreaks across different regions?  
+-   Are there seasonal patterns in measles outbreaks across different regions?
 
-- How are climate, natural resources and emissions related to measles/rubella cases?  
+-   How are climate, natural resources and emissions related to measles/rubella cases?
 
-- How are total measles cases spatially distributed throughout the world's regions?     
+-   How are total measles cases spatially distributed throughout the world's regions?
 
 To better understand the relationship between climate and measles/rubella cases, we will explore monthly mean lab confirmed measles/rubella cases in the northern and southern hemisphere. We will ignore changes across years, and focus on monthly variation. We will compare India and Indonesia, who are both in the [top 10 countries](https://www.cdc.gov/global-measles-vaccination/data-research/global-measles-outbreaks/index.html) with the worst measles outbreaks as of 2023.
 
@@ -213,9 +220,6 @@ monthly_sums(df = meta_data,
 ```
 
 From our analysis we see a strong relationship between month and measles/rubella cases. This confirms the long held notion of a northern hemisphere "flu season" during the winter. The relationship in Indonesia is more subtle and may be indicative of their tropical climate.
-
-
-
 
 Next, we will next investigate how climate, natural resources and emissions are related to measles/rubella cases.
 
@@ -272,7 +276,7 @@ meta_data |>
 
 When comparing climate and natural resources, we see expected results such as a positive correlation between mean precipitation and forested area. However, we found suprising results indicating a positive correlation between Co2 emissions and measles/rubella cases (Figure 1).
 
-Finally, we investigate spatial differences in measles cases from last year and compare the distributions of total measles cases across world regions (Figure 2). 
+Finally, we investigate spatial differences in measles cases from last year and compare the distributions of total measles cases across world regions (Figure 2).
 
 ```{r}
 
@@ -333,7 +337,6 @@ map(regions, region_burden) |>
 
 ```
 
-
 ```{r}
 #| fig-height: 8
 #| fig-width: 15
@@ -358,14 +361,11 @@ regions_df |>
 
 ```
 
-
 ### Measles Cases From Country to Country
 
 Does the impact of measles vary across countries? If so, what factors might contribute to those differences?
 
 We first examined the relationship between a country’s economic standing and its measles cases. Since graphing all 200 countries would produce a cluttered visualization, we focused on the five richest and five poorest countries and compared how their measles cases changed over time. These countries were identified using a [Wikipedia page](https://en.wikipedia.org/wiki/List_of_countries_by_GDP_(PPP)_per_capita) ranking countries by GDP (PPP) per capita.
-
-
 
 ```{r}
 richest_5 <- c("Singapore", "Ireland", "Luxembourg", "Norway", "Qatar")
@@ -405,8 +405,6 @@ ggplot(timeseries_df, aes(x = date, y = measles_per_100k, group = country, color
 ```
 
 From 2012 to 2025, the poorest five countries experienced higher measles case counts than the richest five countries. While measles cases in the richest group remained close to zero in the past 13 years, the poorest group showed repeated outbreak spikes, with large increases in more recent times. This suggests a strong association GDP and measles cases.
-
-
 
 ## Data Model
 
@@ -460,20 +458,20 @@ linearreg_df <- meta_data |>
 
 **To be answered by the data:**
 
-- How does the volume of measles cases change over time?
+-   How does the volume of measles cases change over time?
 
-- Which areas of the world contribute the most to measles cases?
+-   Which areas of the world contribute the most to measles cases?
 
 **To be answered using supplemental data:**
 
-- How does vaccination rates affect measles cases by country? (using vaccination data sets likely from WHO)
+-   How does vaccination rates affect measles cases by country? (using vaccination data sets likely from WHO)
 
-- Are measles case rates correlated with GPD and development level of a country? (get GDP and country data from somewhere like gapminder)
+-   Are measles case rates correlated with GPD and development level of a country? (get GDP and country data from somewhere like gapminder)
 
 **Summary 2**\
 - Using measels_year, which regions of the world contribute the most to measles cases? (only looking at 2025)
 
-- Use of custom function, iteration, 1 unmodified column, 1 modified column
+-   Use of custom function, iteration, 1 unmodified column, 1 modified column
 
 **Summary 3:** Average lab quality across each year.
 
