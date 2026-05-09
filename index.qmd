@@ -17,11 +17,11 @@ execute:
 
 ![](./measles.jpg){fig-alt="Header image illustrating the measles virus."}
 
-## Introduction
+## The Measles Paradox     
 
 Measles is one of the most contagious diseases known and one of the most preventable: a two-dose vaccine costs roughly a dollar and offers near-lifetime protection. Even so, the past several years have seen a global resurgence. Routine immunization slipped during the COVID-19 pandemic, conflict and displacement disrupted vaccination campaigns in several regions, and outbreaks have re-emerged in countries that had previously eliminated the disease — raising concern that hard-won progress toward elimination is being lost.
 
-This report combines three datasets — provisional WHO case reports, scraped historical climate data, and country-level economic and demographic indicators — to ask where measles is concentrated and which country-level conditions are most associated with its burden. We organize the analysis around two questions: how climate and geography relate to measles rates, and whether measles prevalence tracks economic and demographic differences between countries. We close with a regression model that brings these threads together and discuss what the combined evidence suggests for global measles control.
+This report combines three datasets — provisional WHO case reports, scraped historical climate data, and country-level economic and demographic indicators — to ask where measles is concentrated and which country-level conditions are most associated with its burden. We organize the analysis around two questions: how climate and geography relate to measles rates, and whether measles prevalence tracks economic and demographic differences between countries. We close with a regression model and discuss what the combined evidence suggests for global measles control.
 
 ## Data Context
 
@@ -239,7 +239,7 @@ Next, we investigate how climate, natural resources and emissions are related to
 ```{r}
 #| fig-height: 8
 #| fig-width: 15
-#| fig-alt: "Heatmap-style correlation matrix with twelve variables on each axis, including measles and rubella case totals, month, mean temperature and precipitation, surface area, forested area, CO2 emissions, threatened species, and internet users. Off-diagonal tiles are coloured by Pearson correlation, ranging from dark (low or negative) to bright yellow (high positive); the diagonal is masked. CO2 emissions and threatened species show the strongest positive correlation with measles and rubella case totals, while mean precipitation and forested area correlate most strongly with each other."
+#| fig-alt: "Heatmap correlation matrix with twelve variables on each axis, including measles and rubella case totals, month, mean temperature and precipitation, surface area, forested area, CO2 emissions, threatened species, and internet users."
 #| fig-cap: "Figure 1: Correlation matrix showing the relationship between climate, natural resources and emissions data and measles/rubella cases."
 
 
@@ -354,7 +354,7 @@ map(regions, region_burden) |>
 ```{r}
 #| fig-height: 8
 #| fig-width: 15
-#| fig-alt: "Density ridge plot comparing the distribution of total measles cases per year (truncated at 5,000) across six WHO regions: Africa, Eastern Mediterranean, South-East Asia, Western Pacific, Europe, and the Americas. All regions are heavily skewed toward zero, but Africa, Eastern Mediterranean, and South-East Asia have visibly heavier right tails than Europe, the Americas, and the Western Pacific."
+#| fig-alt: "Density ridge plot comparing the distribution of total measles cases per year across six WHO regions: Africa, Eastern Mediterranean, South-East Asia, Western Pacific, Europe, and the Americas."
 #| fig-cap: "Figure 2: Comparison of the distribution of measles cases per year across world regions."
 
 regions_df |>
@@ -449,7 +449,7 @@ table_data |>
 We then examined the relationship between a country’s economic standing and its measles cases. Since graphing all 200 countries would produce a cluttered visualization, we focused on the five richest and five poorest countries and compared how their measles cases changed over time. These countries were identified using a [Wikipedia page](https://en.wikipedia.org/wiki/List_of_countries_by_GDP_(PPP)_per_capita) ranking countries by GDP (PPP) per capita.
 
 ```{r}
-#| fig-alt: "Line plot of measles cases per 100,000 people from 2012 to 2025 for ten countries. Lines for the five poorest countries (Burundi, Central African Republic, South Sudan, Yemen, Mozambique), shown in red, exhibit repeated tall spikes with the largest concentrated in recent years. Lines for the five richest countries (Singapore, Ireland, Luxembourg, Norway, Qatar), shown in blue, remain near zero throughout the period."
+#| fig-alt: "Line plot of measles cases per 100,000 people from 2012 to 2025 for ten countries. Lines for the five poorest countries (Burundi, Central African Republic, South Sudan, Yemen, Mozambique), and lines for the five richest countries (Singapore, Ireland, Luxembourg, Norway, Qatar)."
 #| fig-cap: "Figure 3: Line plot of measles cases over time comparing five richest countries and five poorest countries from Wikipedia ranking."
 
 richest_5 <- c("Singapore", "Ireland", "Luxembourg", "Norway", "Qatar")
@@ -540,7 +540,7 @@ Now, we will examine the relationship between GDP per capita and measles cases b
 
 ```{r}
 #| fig-cap: "Figure 4. GDP per Capita vs Mean Annual Measles Cases by Country."
-#| fig-alt: "Hexbin plot of countries comparing GDP per capita against mean annual measles cases, both on log scales. Bins are coloured by the number of countries falling into each cell, ranging from blueviolet (few) to goldenrod (many). The bins form a roughly negatively-sloped band, with low-GDP, high-case countries clustered in the upper left and high-GDP, low-case countries clustered in the lower right."
+#| fig-alt: "Hexbin plot of countries comparing GDP per capita against mean annual measles cases, both on log scales."
 #| warning: false
 library(scales)
 
@@ -579,7 +579,7 @@ meta_data |>
 
 ```
 
-Figure 4 shows that as GDP per capita increases, mean annual measles cases decrease. Richer countries, on average, report fewer cases — a pattern consistent with better vaccination coverage, healthcare access, and surveillance, though our cross-sectional data cannot distinguish between these explanations.
+Our analysis shows that as GDP per capita increases, mean annual measles cases decrease (Figure 4). Richer countries, on average, report fewer cases — a pattern consistent with better vaccination coverage, healthcare access, and surveillance, though our cross-sectional data does not distinguish between these explanations.
 
 ### Data Model
 
@@ -648,10 +648,11 @@ model |>
 
 ### Results
 
-The regression results reinforce, rather than contradict, the patterns seen earlier in the report. Log GDP per capita carries a strong negative coefficient: holding climate, tourism, and urbanization constant, wealthier countries report systematically lower measles rates per 100,000 — the same gradient that produced the divergent trajectories of the richest and poorest five countries in Figure 3 and the negatively-sloped band in Figure 4. Mean temperature is positively associated with measles, consistent with the regional density patterns in Figure 2 and the seasonal contrast between India and Indonesia in Table 1. The positive coefficient on log tourists is plausibly bidirectional: tourism creates importation pathways for measles, and tourism-heavy countries also tend to maintain stronger surveillance systems that detect more cases. Urban population shows a negative association, hinting that more concentrated populations may receive vaccination and clinical care more efficiently than dispersed ones.
+The regression results reinforce the patterns seen earlier in the report. Log GDP per capita carries a strong negative coefficient: holding climate, tourism, and urbanization constant, wealthier countries report systematically lower measles rates per 100,000 — the same gradient that produced the divergent trajectories of the richest and poorest five countries in Figure 3 and the negatively-sloped band in Figure 4. Mean temperature is positively associated with measles, consistent with the regional density patterns in Figure 2 and the seasonal contrast between India and Indonesia in Table 1. The positive coefficient on log tourists needs further analysis but may be because tourism creates importation pathways for measles, and tourism-heavy countries tend to maintain stronger surveillance systems that detect more cases. Urban population shows a negative association, hinting that more concentrated populations may receive vaccination and clinical care more efficiently than dispersed ones.
+
+
+## Discussion    
 
 Taken together, the three analyses — seasonal/regional, economic, and the joint regression — point to the same conclusion from different angles: measles burden is concentrated in lower-income, warmer countries, and over the 2012–2025 window the case-rate gap between rich and poor countries has widened rather than closed.
 
-## Conclusion
-
-The global measles picture from 2012 to 2025 is one of widening inequality rather than steady progress. Climate and seasonality help explain *when* outbreaks happen, but economic and demographic conditions explain *where* they take hold and how severe they become. Across our analyses, GDP per capita is the strongest country-level correlate of measles burden, with warmer average temperatures and lower urbanization compounding the effect. None of these relationships are causal, but together they sharpen where intervention is most needed. Future work should incorporate vaccination-coverage data directly, model the temporal dynamics that our cross-sectional country variables obscure, and revisit the CO₂–measles association we flag above with measures less correlated with country size.
+The global measles picture from 2012 to 2025 is one of widening inequality rather than steady progress. Climate and seasonality help explain *when* outbreaks happen, but economic and demographic conditions explain *where* they take hold and how severe they become. Future work should incorporate vaccination-coverage data directly, model the temporal dynamics that our cross-sectional country variables obscure, and revisit the CO₂–measles association.
