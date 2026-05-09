@@ -3,7 +3,7 @@ title: "Measles cases across the world"
 author: "Carson Neubert, Ben Parker, Minh Ho-Hoang"
 format: 
   html:
-    theme: cosmo
+    theme: united 
     embed-resources: true
     code-tools: true
     page-layout: full
@@ -15,13 +15,19 @@ execute:
   warning: false
 ---
 
-![](./measles.jpg)
+![](./measles.jpg){fig-alt="Header image illustrating the measles virus."}
+
+## Introduction
+
+Measles is one of the most contagious diseases known and one of the most preventable: a two-dose vaccine costs roughly a dollar and offers near-lifetime protection. Even so, the past several years have seen a global resurgence. Routine immunization slipped during the COVID-19 pandemic, conflict and displacement disrupted vaccination campaigns in several regions, and outbreaks have re-emerged in countries that had previously eliminated the disease — raising concern that hard-won progress toward elimination is being lost.
+
+This report combines three datasets — provisional WHO case reports, scraped historical climate data, and country-level economic and demographic indicators — to ask where measles is concentrated and which country-level conditions are most associated with its burden. We organize the analysis around two questions: how climate and geography relate to measles rates, and whether measles prevalence tracks economic and demographic differences between countries. We close with a regression model that brings these threads together and discuss what the combined evidence suggests for global measles control.
 
 ## Data Context
 
 #### World Health Organization (WHO)
 
-We are exploring measles and rubella cases across the world. The data was collected and [published](https://immunizationdata.who.int/global?topic=Provisional-measles-and-rubella-data&location=) through the World Health Organization (WHO) portal, but for ease of access scripts to access the data were provided by [tidytuesday](https://github.com/rfordatascience/tidytuesday/blob/main/data/2025/2025-06-24/readme.md).
+We are exploring measles and rubella cases across the world. The data was collected and [published](https://immunizationdata.who.int/global?topic=Provisional-measles-and-rubella-data&location=) through the World Health Organization (WHO) portal, but for ease of access, scripts to access the data were provided by [tidytuesday](https://github.com/rfordatascience/tidytuesday/blob/main/data/2025/2025-06-24/readme.md).
 
 WHO has published monthly measles and rubella data from 193 countries from June 2012 to 2025. The data is provisional and is early case reports by WHO member countries collected using each countries national surveillance systems. The data contains several types of case confirmations (suspected, clinical, epidemiologically linked, and lab confirmed) as well as population count data in the yearly data set. The data was collected to monitor measles and rubella cases worldwide in order to support public health decision making and vaccination strategies.
 
@@ -117,7 +123,7 @@ The observational unit in this dataset is a country, where each row represents o
 
 The data was collected for this project by sending requests to the API Ninjas Country API and retrieving the given JSON objects. Each of these JSON objects contains country level statistics, which were then put into a dataset where each country became one observation and each statistic became a variable/column.
 
-The data was collected because it allows us to make comparisons between a country's economic, demographic, or geographic characteristics and how prevalent measles is in those countries. We hypothesize that such factors are associated with changes in measles cases and have retrieved them from this API to asses our hypothesis.
+The data was collected because it allows us to make comparisons between a country's economic, demographic, or geographic characteristics and how prevalent measles is in those countries. We hypothesize that such factors are associated with changes in measles cases and have retrieved them from this API to assess our hypothesis.
 
 ```{r}
 #| eval: false
@@ -162,7 +168,7 @@ meta_data <- left_join(cases_month3,
                        relationship = "many-to-many")
 ```
 
-Our final dataset is the three previous datasets joined together. The web-scrapped data was joined onto the measles case data by month and by country. The API fetched data was joined onto the result of the previous join by country. Thus, we have a single dataset containing statistics on measles cases, countries, and environmental factors.
+Our final dataset is the three previous datasets joined together. The web-scraped data was joined onto the measles case data by month and by country. The API fetched data was joined onto the result of the previous join by country. Thus, we have a single dataset containing statistics on measles cases, countries, and environmental factors.
 
 ## Research Questions
 
@@ -228,12 +234,12 @@ monthly_sums(df = meta_data,
 
 From our analysis we see a strong relationship between month and measles/rubella cases. This confirms the long held notion of a northern hemisphere "flu season" during the winter. The relationship in Indonesia is more subtle and may be indicative of their tropical climate.
 
-Next, we will next investigate how climate, natural resources and emissions are related to measles/rubella cases.
+Next, we investigate how climate, natural resources and emissions are related to measles/rubella cases.
 
 ```{r}
 #| fig-height: 8
 #| fig-width: 15
-#| fig-alt: "A plot showing the relationship between climate, natural resources and emissions data and measles/rubella cases."
+#| fig-alt: "Heatmap-style correlation matrix with twelve variables on each axis, including measles and rubella case totals, month, mean temperature and precipitation, surface area, forested area, CO2 emissions, threatened species, and internet users. Off-diagonal tiles are coloured by Pearson correlation, ranging from dark (low or negative) to bright yellow (high positive); the diagonal is masked. CO2 emissions and threatened species show the strongest positive correlation with measles and rubella case totals, while mean precipitation and forested area correlate most strongly with each other."
 #| fig-cap: "Figure 1: Correlation matrix showing the relationship between climate, natural resources and emissions data and measles/rubella cases."
 
 
@@ -259,21 +265,22 @@ meta_data |>
   correlate(method = "pearson",
             use = "pairwise.complete.obs") |>
   rename(term1 = term) |> 
-  pivot_longer(cols = -term1, 
-               names_to = "term2", 
+  pivot_longer(cols = -term1,
+               names_to = "term2",
                values_to = "correlation") |>
+  filter(term1 != term2) |>
   mutate(
-    across(.cols = c(term1, term2), 
+    across(.cols = c(term1, term2),
            .fns = ~ make_titles(.x)
            )
-    ) |> 
+    ) |>
   ggplot(mapping = aes(x = term1,
-                       y = term2, 
+                       y = term2,
                        fill = correlation)) +
   geom_tile() +
-  labs(x = "", 
-       y = "", 
-       title = "Correlation Between Measles/Rubella Cases and Biological Factors", 
+  labs(x = "",
+       y = "",
+       title = "Correlation Between Measles/Rubella Cases and Biological Factors",
        fill = "Correlation"
        ) +
   theme_bw() +
@@ -281,7 +288,7 @@ meta_data |>
 
 ```
 
-When comparing climate and natural resources, we see expected results such as a positive correlation between mean precipitation and forested area. However, we found suprising results indicating a positive correlation between Co2 emissions and measles/rubella cases (Figure 1).
+When comparing climate and natural resources, we see expected results such as a positive correlation between mean precipitation and forested area. We also see a positive correlation between CO₂ emissions and measles/rubella cases (Figure 1) — a surprising finding that likely reflects population and industrial scale rather than a direct biological link.
 
 Finally, we investigate spatial differences in measles cases from last year and compare the distributions of total measles cases across world regions (Figure 2).
 
@@ -347,7 +354,7 @@ map(regions, region_burden) |>
 ```{r}
 #| fig-height: 8
 #| fig-width: 15
-#| fig-alt: "A plot showing the distributions of measles cases per year across world regions."
+#| fig-alt: "Density ridge plot comparing the distribution of total measles cases per year (truncated at 5,000) across six WHO regions: Africa, Eastern Mediterranean, South-East Asia, Western Pacific, Europe, and the Americas. All regions are heavily skewed toward zero, but Africa, Eastern Mediterranean, and South-East Asia have visibly heavier right tails than Europe, the Americas, and the Western Pacific."
 #| fig-cap: "Figure 2: Comparison of the distribution of measles cases per year across world regions."
 
 regions_df |>
@@ -368,9 +375,11 @@ regions_df |>
 
 ```
 
-### Measles Cases From Country to Country
+The density ridge plot spans the full dataset (2012-2025) and so reflects long-term regional measles rates, which differ from the 2025 snapshot in Table 2. Notably, the regions with the largest 2025 share are not always those with the heaviest long-run distributions — a shift that points to outbreak dynamics a deeper temporal analysis could unpack.
 
-The following analysis aims to answer the question below:
+
+### Measles Cases and Economics 
+Having examined environmental factors, we now turn to economic and demographic conditions and ask whether they help explain country-level differences in measles prevalence. Specifically, we seek to answer:
 
 -   **Is measles prevalence associated with country-level economic and demographic characteristics?**
 
@@ -380,7 +389,7 @@ More specifically:
 
 -   Is the prevalence of measles associated with the economic prosperity of a country?
 
-First we will examine which countries have the highest and lowest number of measles cases per year. Cases per 100,000 people is the preferred metric here, giving a better estimate on the prevalence of measles in a countries population.
+First, we will examine which countries have the highest and lowest number of measles cases per year. We chose to scale total cases per 100,000 people to provide better estimates on the prevalence of measles in a countries population.
 
 ```{r}
 country_measles <- meta_data |>
@@ -427,12 +436,22 @@ table_data |>
   tab_style(style = cell_text(weight = "bold"),
             locations = cells_column_labels()) |>
   tab_source_note(
-    source_note = "Countries are ranked by average yearly measles cases per 100,000 people. The table compares the five countries with the highest rates and the five countries with the lowest rates.")
+                  source_note = md("*Table 3: Countries are ranked by average yearly measles cases per 100,000 people. The table compares the five countries with the highest rates and the five countries with the lowest rates.*")
+)|>
+  data_color(
+        columns = everything(),
+        palette = "Oranges"
+       )
+
+
 ```
 
 We then examined the relationship between a country’s economic standing and its measles cases. Since graphing all 200 countries would produce a cluttered visualization, we focused on the five richest and five poorest countries and compared how their measles cases changed over time. These countries were identified using a [Wikipedia page](https://en.wikipedia.org/wiki/List_of_countries_by_GDP_(PPP)_per_capita) ranking countries by GDP (PPP) per capita.
 
 ```{r}
+#| fig-alt: "Line plot of measles cases per 100,000 people from 2012 to 2025 for ten countries. Lines for the five poorest countries (Burundi, Central African Republic, South Sudan, Yemen, Mozambique), shown in red, exhibit repeated tall spikes with the largest concentrated in recent years. Lines for the five richest countries (Singapore, Ireland, Luxembourg, Norway, Qatar), shown in blue, remain near zero throughout the period."
+#| fig-cap: "Figure 3: Line plot of measles cases over time comparing five richest countries and five poorest countries from Wikipedia ranking."
+
 richest_5 <- c("Singapore", "Ireland", "Luxembourg", "Norway", "Qatar")
 poorest_5 <- c("Burundi", "Central African Republic", "South Sudan", "Yemen", "Mozambique")
 
@@ -447,12 +466,9 @@ timeseries_df <- meta_data |>
       country %in% poorest_5 ~ "Poorest 5"
     )
   )
-```
 
-```{r}
-#| fig-alt: Line plot of measles cases over time comparing five richest countries and five poorest countries from Wikipedia ranking. 
-
-ggplot(timeseries_df, aes(x = date, y = measles_per_100k, group = country, color = wealth_group)) +
+timeseries_df |>
+  ggplot(aes(x = date, y = measles_per_100k, group = country, color = wealth_group)) +
   geom_line(linewidth = 1, alpha = 0.85) +
   scale_color_manual(
     values = c("Richest 5" = "steelblue4", "Poorest 5" = "firebrick3")
@@ -469,7 +485,7 @@ ggplot(timeseries_df, aes(x = date, y = measles_per_100k, group = country, color
     legend.position = "bottom")
 ```
 
-From 2012 to 2025, the poorest five countries experienced higher measles case counts than the richest five countries. While measles cases in the richest group remained close to zero in the past 13 years, the poorest group showed repeated outbreak spikes, with large increases in more recent times. This suggests a strong association GDP and measles cases.
+From 2012 to 2025, the poorest five countries experienced higher measles case counts than the richest five countries. While measles cases in the richest group remained close to zero in the past 13 years, the poorest group showed repeated outbreak spikes, with large increases in more recent times. This suggests a strong association between GDP and measles cases.
 
 While the time series plot compares measles rates between the richest and poorest country groups, it does not show the size of the economic difference between those groups. The following table will take a deeper dive into this discrepancy.
 
@@ -496,13 +512,24 @@ gdppc_for_countries <- function(data, rich_countries, poor_countries) {
     cols_label(
       country = "Country",
       gdp_per_capita_usd = "GDP per Capita (USD)") |>
+    tab_style(style = cell_text(weight = "bold"),
+            locations = cells_title()) |>
+    tab_style(style = cell_text(weight = "bold"),
+            locations = cells_column_labels()) |>
+    tab_style(style = cell_text(weight = "bold"),
+            locations = cells_row_groups()) |>
     tab_header(
       title = md("**GDP per Capita of Selected Richest and Poorest Countries**"),
       subtitle = "Countries grouped using GDP per capita rankings") |>
     tab_source_note(
-      source_note = "GDP per capita was calculated as GDP divided by population.
-      GDP appears to be stored in millions of USD, and population appears to be stored in thousands.") |>
-    tab_options(table.width = pct(65))}
+                    source_note = md("*Table 4: GDP per capita was calculated as GDP divided by population.
+      GDP expressed in millions of USD, and population in thousands.*")) |>
+    tab_options(table.width = pct(65))|>
+  data_color(
+        columns = everything(),
+        palette = "Oranges"
+       )
+}
 
 gdppc_for_countries(meta_data, richest_5, poorest_5)
 ```
@@ -512,6 +539,8 @@ It is important to note that because the countries were grouped using GDP per ca
 Now, we will examine the relationship between GDP per capita and measles cases by country. Because our GDP data is taken at a single time for each country, we averaged measles cases per country, per year and plotted the average number of annual cases vs. GPD per capita. A Hexbin plot was also used as opposed to a scatterplot to better visualize the density of countries in certain GDP/case ratios.
 
 ```{r}
+#| fig-cap: "Figure 4. GDP per Capita vs Mean Annual Measles Cases by Country."
+#| fig-alt: "Hexbin plot of countries comparing GDP per capita against mean annual measles cases, both on log scales. Bins are coloured by the number of countries falling into each cell, ranging from blueviolet (few) to goldenrod (many). The bins form a roughly negatively-sloped band, with low-GDP, high-case countries clustered in the upper left and high-GDP, low-case countries clustered in the lower right."
 #| warning: false
 library(scales)
 
@@ -550,9 +579,12 @@ meta_data |>
 
 ```
 
-The following visualization shows that as GPD per capita increases, the mean annual measles cases decreases. This means that richer countries, on average, have less measles cases, which can be possibly attributed to better access to healthcare and quality of life.
+Figure 4 shows that as GDP per capita increases, mean annual measles cases decrease. Richer countries, on average, report fewer cases — a pattern consistent with better vaccination coverage, healthcare access, and surveillance, though our cross-sectional data cannot distinguish between these explanations.
 
-## Data Model
+### Data Model
+
+For deeper analysis, we built a linear regression model to examine whether country characteristics are associated with measles prevalence. We chose to log transform the response variable, measles cases per 100,000 people, and the explanatory variables, GDP per capita, and number of tourists. 
+
 
 ```{r}
 #| warning: false
@@ -572,19 +604,25 @@ linearreg_df <- meta_data |>
     measles_rate_100k = (measles_total / population) * 100000,
     log_gdp_per_capita = log(gdp_per_capita),
     log_measles_rate_100k = log(measles_rate_100k + 1),
-    log_tourists = log(tourists))
-```
-
-```{r}
-  lm(
+    log_tourists = log(tourists)) 
+model <-  lm(
     log_measles_rate_100k ~ log_gdp_per_capita + mean_temp + log_tourists + urban_population, 
-    data = linearreg_df) |>
+    data = linearreg_df) 
+
+model |>
   tidy() |>
+  mutate(term = recode_values(term,
+                              "(Intercept)" ~ "Intercept",
+                              "log_gdp_per_capita" ~ "Log GDP per Capita",
+                              "mean_temp" ~ "Mean Temperature",
+                              "log_tourists" ~ "Log Number of Tourists",
+                              "urban_population" ~ "Urban Population")) |>
   gt() |>
   fmt_number(
-    columns = c(estimate, std.error, statistic, p.value),
+    columns = c(estimate, std.error, statistic),
     decimals = 3
   ) |>
+  fmt_scientific(columns = p.value) |>
   cols_label(
     term = md("**Predictor**"),
     estimate = md("**Estimate**"),
@@ -597,9 +635,23 @@ linearreg_df <- meta_data |>
     subtitle = "Predicting logged measles case rate per 100,000"
   ) |>
   tab_source_note(
-    source_note = "Linear regression using GDP per capita, mean temperature, number of tourists, and urban population as predictors.")
+                  source_note = md("*Table 5: Linear regression using GDP per capita, mean temperature, number of tourists, and urban population as predictors.*"))|>
+  data_color(
+        columns = everything(),
+        palette = "Oranges"
+       )
+
+
+
 ```
 
-The regression model above examines whether country characteristics are associated with measles prevalence, using the log of measles cases per 100,000 people. GPD per capita has a significant negative association with measles prevalence (as indicated by the -0.408 coefficient estimate), meaning countries with higher GDP tend to have lower measles prevalence. Additionally, the number of tourists (log_tourists) is also associated with measles, such that countries with more tourists have more measles cases. Average temperature was also associated with measles, as hotter countries have more prevalence of the disease. Lastly, countries with larger urban populations tend to have less measles cases as there is a negative association between measles and urban population as well.
 
-Overall, our findings suggest that the impact of measles is not evenly distributed across countries. Countries differences in their measles prevalence, and those differences appear to be related to economic, demographic and environmental factors.
+### Results
+
+The regression results reinforce, rather than contradict, the patterns seen earlier in the report. Log GDP per capita carries a strong negative coefficient: holding climate, tourism, and urbanization constant, wealthier countries report systematically lower measles rates per 100,000 — the same gradient that produced the divergent trajectories of the richest and poorest five countries in Figure 3 and the negatively-sloped band in Figure 4. Mean temperature is positively associated with measles, consistent with the regional density patterns in Figure 2 and the seasonal contrast between India and Indonesia in Table 1. The positive coefficient on log tourists is plausibly bidirectional: tourism creates importation pathways for measles, and tourism-heavy countries also tend to maintain stronger surveillance systems that detect more cases. Urban population shows a negative association, hinting that more concentrated populations may receive vaccination and clinical care more efficiently than dispersed ones.
+
+Taken together, the three analyses — seasonal/regional, economic, and the joint regression — point to the same conclusion from different angles: measles burden is concentrated in lower-income, warmer countries, and over the 2012–2025 window the case-rate gap between rich and poor countries has widened rather than closed.
+
+## Conclusion
+
+The global measles picture from 2012 to 2025 is one of widening inequality rather than steady progress. Climate and seasonality help explain *when* outbreaks happen, but economic and demographic conditions explain *where* they take hold and how severe they become. Across our analyses, GDP per capita is the strongest country-level correlate of measles burden, with warmer average temperatures and lower urbanization compounding the effect. None of these relationships are causal, but together they sharpen where intervention is most needed. Future work should incorporate vaccination-coverage data directly, model the temporal dynamics that our cross-sectional country variables obscure, and revisit the CO₂–measles association we flag above with measures less correlated with country size.

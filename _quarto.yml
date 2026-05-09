@@ -8,7 +8,7 @@ website:
   navbar:
     left:
       - text: "Dataset Descriptions"
-        href: ./index.qmd#data-description
+        href: ./index.qmd#data-context
       - text: "Research Questions"
         href: ./index.qmd#research-questions
 format:
@@ -16,7 +16,6 @@ format:
     page-layout: full
     code-tools: true
     embed-resources: true
-    theme: united 
 
 
 
