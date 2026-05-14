@@ -43,6 +43,9 @@ library(here)
 library(broom)
 library(ggridges)
 library(scales)
+library(nlme)
+library(broom.mixed)
+library(emmeans)
 
 # reading in from github
 cases_month <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-06-24/cases_month.csv')
@@ -589,10 +592,15 @@ For deeper analysis, we built a linear regression model to examine whether count
 ```{r}
 #| warning: false
 
+meta_data <- meta_data |>
+  distinct(country, year, month, .keep_all = TRUE)
+
 linearreg_df <- meta_data |>
   select(
     country,
+    region.x,
     year,
+    month,
     gdp,
     population,
     measles_total,
@@ -604,46 +612,175 @@ linearreg_df <- meta_data |>
     measles_rate_100k = (measles_total / population) * 100000,
     log_gdp_per_capita = log(gdp_per_capita),
     log_measles_rate_100k = log(measles_rate_100k + 1),
-    log_tourists = log(tourists)) 
-model <-  lm(
-    log_measles_rate_100k ~ log_gdp_per_capita + mean_temp + log_tourists + urban_population, 
-    data = linearreg_df) 
+    log_tourists = log(tourists + 1),
+    year_month = as.integer(year * 12 + month),
+    country = as.factor(country),
+    region.x = relevel(as.factor(region.x), ref = "AFR")) |>
+  arrange(country, year_month)
+
+model <- gls(
+  log_measles_rate_100k ~ log_gdp_per_capita * region.x + year +
+    mean_temp + log_tourists + urban_population,
+  data = linearreg_df,
+  correlation = corAR1(form = ~ year_month | country),
+  method = "ML",
+  na.action = na.omit
+)
 
 model |>
-  tidy() |>
-  mutate(term = recode_values(term,
-                              "(Intercept)" ~ "Intercept",
-                              "log_gdp_per_capita" ~ "Log GDP per Capita",
-                              "mean_temp" ~ "Mean Temperature",
-                              "log_tourists" ~ "Log Number of Tourists",
-                              "urban_population" ~ "Urban Population")) |>
+  broom.mixed::tidy() |>
+  mutate(
+    term = recode_values(term,
+                         "(Intercept)" ~ "Intercept",
+                         "log_gdp_per_capita" ~ "Log GDP per Capita",
+                         "year" ~ "Year",
+                         "mean_temp" ~ "Mean Temperature",
+                         "log_tourists" ~ "Log Number of Tourists",
+                         "urban_population" ~ "Urban Population",
+                         "region.xAMR" ~ "AMR",
+                         "region.xEMR" ~ "EMR",
+                         "region.xEUR" ~ "EUR",
+                         "region.xSEAR" ~ "SEAR",
+                         "region.xWPR" ~ "WPR",
+                         "log_gdp_per_capita:region.xAMR" ~ "Log GDP per Capita x AMR",
+                         "log_gdp_per_capita:region.xEMR" ~ "Log GDP per Capita x EMR",
+                         "log_gdp_per_capita:region.xEUR" ~ "Log GDP per Capita x EUR",
+                         "log_gdp_per_capita:region.xSEAR" ~ "Log GDP per Capita x SEAR",
+                         "log_gdp_per_capita:region.xWPR" ~ "Log GDP per Capita x WPR"),
+    order = case_when(
+      term == "Intercept" ~ 1,
+      term == "Log GDP per Capita" ~ 2,
+      str_detect(term, "Log GDP per Capita x") ~ 3,
+      term == "Year" ~ 4,
+      term == "Mean Temperature" ~ 5,
+      term == "Log Number of Tourists" ~ 6,
+      term == "Urban Population" ~ 7,
+      term %in% c("AMR", "EMR", "EUR", "SEAR", "WPR") ~ 8,
+      TRUE ~ 9)) |>
+  arrange(order, term) |>
+  select(-order) |>
   gt() |>
   fmt_number(
     columns = c(estimate, std.error, statistic),
-    decimals = 3
-  ) |>
+    decimals = 3) |>
   fmt_scientific(columns = p.value) |>
   cols_label(
     term = md("**Predictor**"),
     estimate = md("**Estimate**"),
     std.error = md("**Std. Error**"),
     statistic = md("**t-value**"),
-    p.value = md("**p-value**")
-  ) |>
+    p.value = md("**p-value**")) |>
   tab_header(
     title = md("**Regression Model Results**"),
-    subtitle = "Predicting logged measles case rate per 100,000"
-  ) |>
+    subtitle = "Predicting logged measles case rate per 100,000") |>
   tab_source_note(
-                  source_note = md("*Table 5: Linear regression using GDP per capita, mean temperature, number of tourists, and urban population as predictors.*"))|>
+    source_note = md("*Table 5: Generalized least squares regression using GDP per capita, region, year, mean temperature, number of tourists, urban population, and a GDP-by-region interaction as predictors. AFR is the reference region.*")) |>
   data_color(
-        columns = everything(),
-        palette = "Oranges"
-       )
-
-
-
+    columns = everything(),
+    palette = "Oranges")
 ```
+
+Table 5 suggests that GDP per capita, region, year, and tourism are important predictors of logged measles case rates, but the GDP effect appears to depend on region because some GDP by region interaction terms are significant. In AFR, the reference region, higher GDP per capita is associated with lower measles rates, while the significant positive interactions for AMR and WPR suggest their GDP slopes differ from AFR and are less negative. Year and tourists are also significant positive predictors, meaning measles rates tend to be higher over time and in countries with more tourists. However, we still need to determine whether the interaction is significant overall, so we next compare this model to a no interaction model using ANOVA.
+
+```{r}
+model_no_interaction <- gls(
+  log_measles_rate_100k ~ log_gdp_per_capita + region.x + year +
+    mean_temp + log_tourists + urban_population,
+  data = linearreg_df,
+  correlation = corAR1(form = ~ year_month | country),
+  method = "ML",
+  na.action = na.omit
+)
+
+anova(model_no_interaction, model) |>
+  as.data.frame() |>
+  mutate(
+    Model = c("No interaction model", "Interaction model"),
+    `p-value` = ifelse(is.na(`p-value`), NA, "< .0001")) |>
+  select(Model, df, AIC, BIC, L.Ratio, `p-value`) |>
+  gt() |>
+  tab_header(
+    title = "ANOVA Model Comparison",
+    subtitle = "Testing the GDP-by-region interaction") |>
+  fmt_number(
+    columns = c(AIC, BIC, L.Ratio),
+    decimals = 2) |>
+  sub_missing(
+    columns = c(L.Ratio, `p-value`),
+    missing_text = "") |>
+  data_color(
+    columns = everything(),
+    palette = "Oranges")
+```
+
+The ANOVA compares the no interaction model to the GDP by region interaction model. The likelihood ratio test is significant, which means the interaction model fits significantly better than the simpler model. Therefore, the relationship between GDP per capita and logged measles rates differs by region, so follow-up tests are needed to examine the GDP effect within each region.
+
+```{r}
+library(htmltools)
+
+gdp_slopes_by_region <- emtrends(
+  model,
+  specs = ~ region.x,
+  var = "log_gdp_per_capita",
+  mode = "appx-satterthwaite")
+
+slopes_table <- gdp_slopes_by_region |>
+  as.data.frame() |>
+  select(
+    Region = region.x,
+    `GDP Slope` = log_gdp_per_capita.trend,
+    SE,
+    df,
+    `Lower CI` = lower.CL,
+    `Upper CI` = upper.CL) |>
+  gt() |>
+  tab_header(
+    title = "Estimated GDP Slopes by Region",
+    subtitle = "Simple slopes from the GDP-by-region interaction model") |>
+  fmt_number(
+    columns = c(`GDP Slope`, SE, df, `Lower CI`, `Upper CI`),
+    decimals = 3) |>
+  data_color(
+    columns = everything(),
+    palette = "Oranges")
+
+pairs_table <- pairs(gdp_slopes_by_region, adjust = "tukey") |>
+  as.data.frame() |>
+  mutate(
+    contrast = gsub(" - ", " vs. ", contrast),
+    estimate = round(estimate, 3),
+    SE = round(SE, 3),
+    df = round(df, 0),
+    t.ratio = round(t.ratio, 2),
+    `p-value` = case_when(
+      p.value < .0001 ~ "< .0001",
+      p.value < .001 ~ "< .001",
+      TRUE ~ as.character(round(p.value, 4)))) |>
+  select(
+    Contrast = contrast,
+    Estimate = estimate,
+    SE,
+    df,
+    `t-ratio` = t.ratio,
+    `p-value`) |>
+  gt() |>
+  tab_header(
+    title = "Tukey Pairwise Comparisons",
+    subtitle = "Follow-up tests for the interaction") |>
+  fmt_number(
+    columns = c(Estimate, SE, df, `t-ratio`),
+    decimals = 2) |>
+  data_color(
+    columns = everything(),
+    palette = "Oranges")
+
+tagList(
+  div(style = "display: flex; gap: 20px; align-items: flex-start;",
+      div(style = "width: 45%;", slopes_table),
+      div(style = "width: 55%;", pairs_table)))
+```
+
+The follow up analyses showed that higher GDP per capita was significantly associated with lower measles rates in AFR, EMR, and SEAR. The association was not statistically significant in AMR, EUR, or WPR. Tukey pairwise comparisons indicated that the GDP slope for EMR differed significantly from AMR, EUR, and WPR.
 
 
 ### Results
