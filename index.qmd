@@ -585,8 +585,7 @@ meta_data |>
 Our analysis shows that as GDP per capita increases, mean annual measles cases decrease (Figure 4). Richer countries, on average, report fewer cases — a pattern consistent with better vaccination coverage, healthcare access, and surveillance, though our cross-sectional data does not distinguish between these explanations.
 
 ### Data Model
-
-For deeper analysis, we built a linear regression model to examine whether country characteristics are associated with measles prevalence. We chose to log transform the response variable, measles cases per 100,000 people, and the explanatory variables, GDP per capita, and number of tourists. 
+To rigorously examine the relationship between country-level characteristics and measles prevalence, we constructed a generalized least squares (GLS) linear regression model. The response variable was the measles case rate per 100,000 people, which we log-transformed to address the strong right skew typical of disease count data and to allow for a multiplicative interpretation of effects. Similarly, two explanatory variables - GDP per capita and the number of international tourists - were log-transformed to normalize their distributions and reduce the influence of extreme values. All six WHO world regions are represented in the model, using Africa (AFR) as the reference category. For clarity, the following abbreviations are used throughout: AFR = Africa, EMR = Eastern Mediterranean, EUR = Europe, SEAR = Southeast Asia, WPR = Western Pacific, and AMR = Americas. The full set of predictors includes log GDP per capita, WHO region, year, mean annual temperature, log number of tourists, and urban population percentage, along with an interaction term between log GDP per capita and region to allow the economic gradient of measles rates to vary across global contexts.
 
 
 ```{r}
@@ -680,7 +679,17 @@ model |>
     palette = "Oranges")
 ```
 
-Table 5 suggests that GDP per capita, region, year, and tourism are important predictors of logged measles case rates, but the GDP effect appears to depend on region because some GDP by region interaction terms are significant. In AFR, the reference region, higher GDP per capita is associated with lower measles rates, while the significant positive interactions for AMR and WPR suggest their GDP slopes differ from AFR and are less negative. Year and tourists are also significant positive predictors, meaning measles rates tend to be higher over time and in countries with more tourists. However, we still need to determine whether the interaction is significant overall, so we next compare this model to a no interaction model using ANOVA.
+**Regression Model Results**      
+
+The regression results (Table 5) reveal several statistically significant predictors of logged measles case rates. Most notably, log GDP per capita in the reference region (AFR) carries a significant negative coefficient (Estimate = -0.394, p = 0.003), indicating that wealthier African countries tend to have lower measles rates - a pattern consistent with richer nations having greater capacity to fund vaccination programs, healthcare infrastructure, and disease surveillance. However, the GDP effect is not uniform across regions; two interaction terms are statistically significant, suggesting that the relationship between wealth and measles burden differs meaningfully depending on where a country is located.      
+
+The interaction between log GDP per capita and AMR is positive and significant (Estimate = 0.514, p = 0.013), indicating that the negative association between GDP and measles rates seen in Africa is substantially attenuated in the Americas. A similar pattern holds for WPR (Estimate = 0.395, p = 0.019), where the GDP slope is likewise less negative relative to AFR. This may reflect the fact that countries in these regions have already achieved high baseline vaccination coverage even at lower income levels. By contrast, the interaction terms for EMR, EUR, and SEAR are not statistically significant, though their directions vary.    
+
+Year is a significant positive predictor (Estimate = 0.094, p < 0.001), a counterintuitive finding that warrants careful interpretation. Rather than indicating a true increase in measles globally, this likely reflects improvements in disease surveillance and reporting infrastructure over time - as countries invested in better data collection, more cases were documented. A deeper analysis on a country-level basis may provide more context to this finding. The log number of international tourists is also a highly significant positive predictor (Estimate = 0.252, p < 0.001), consistent with the well-established role of international travel in facilitating the spread of infectious diseases across borders. Mean temperature and urban population percentage do not reach statistical significance in this model (p = 0.281 and p = 0.614, respectively), suggesting that climatic and urbanization factors play a lesser role once economic development, region, and travel are accounted for.  
+
+
+
+**ANOVA Model Comparison**    
 
 ```{r}
 model_no_interaction <- gls(
@@ -710,10 +719,14 @@ anova(model_no_interaction, model) |>
     missing_text = "") |>
   data_color(
     columns = everything(),
-    palette = "Oranges")
+    palette = "Oranges") |>
+  tab_source_note(
+    source_note = md("*Table 6: ANOVA model comparison between the interactive and non-interactive models.*")) 
+
 ```
 
-The ANOVA compares the no interaction model to the GDP by region interaction model. The likelihood ratio test is significant, which means the interaction model fits significantly better than the simpler model. Therefore, the relationship between GDP per capita and logged measles rates differs by region, so follow-up tests are needed to examine the GDP effect within each region.
+While several individual interaction terms are significant, we conducted a formal likelihood ratio test via ANOVA to determine whether the GDP-by-region interaction as a whole improves model fit beyond the simpler additive model. The interaction model (18 parameters) achieves a significantly better fit than the no-interaction model (13 parameters), with a likelihood ratio statistic of 26.16 (p < 0.0001), despite the modest increase in model complexity reflected in the AIC and BIC values (Table 6). This confirms that the relationship between GDP per capita and logged measles rates is not constant across regions - a single global slope would obscure meaningful regional heterogeneity. Accordingly, follow-up analyses within each region are warranted to characterize these differences more precisely.
+
 
 ```{r}
 library(htmltools)
@@ -742,7 +755,10 @@ slopes_table <- gdp_slopes_by_region |>
     decimals = 3) |>
   data_color(
     columns = everything(),
-    palette = "Oranges")
+    palette = "Oranges")|>
+  tab_source_note(
+    source_note = md("*Table 7: Estimated slopes, standard errors, degrees of freedom and confidence intervals for the GDP by region interaction model.*")) 
+
 
 pairs_table <- pairs(gdp_slopes_by_region, adjust = "tukey") |>
   as.data.frame() |>
@@ -772,7 +788,11 @@ pairs_table <- pairs(gdp_slopes_by_region, adjust = "tukey") |>
     decimals = 2) |>
   data_color(
     columns = everything(),
-    palette = "Oranges")
+    palette = "Oranges")|>
+  tab_source_note(
+    source_note = md("*Table 8: Post-hoc Tukey tests to compare GDP across the world's regions.*")) 
+
+
 
 tagList(
   div(style = "display: flex; gap: 20px; align-items: flex-start;",
@@ -780,16 +800,16 @@ tagList(
       div(style = "width: 55%;", pairs_table)))
 ```
 
-The follow up analyses showed that higher GDP per capita was significantly associated with lower measles rates in AFR, EMR, and SEAR. The association was not statistically significant in AMR, EUR, or WPR. Tukey pairwise comparisons indicated that the GDP slope for EMR differed significantly from AMR, EUR, and WPR.
+**Estimated GDP Slopes by Region**    
+Table 7 presents the simple slopes for log GDP per capita within each region, estimated from the interaction model. The pattern reveals striking regional variation. The GDP slope is negative and statistically significant in AFR (slope = -0.394, 95% CI: -0.653 to -0.134), EMR (slope = -0.621, 95% CI: -0.872 to -0.370), and SEAR (slope = -0.768, 95% CI: -1.291 to -0.245), indicating that in these regions, higher national income is reliably associated with lower measles burden. SEAR shows the steepest negative gradient, suggesting that economic development may be a particularly important driver of measles control in that region.
+By contrast, in AMR (slope = 0.120, 95% CI: -0.220 to 0.461), EUR (slope = -0.169, 95% CI: -0.340 to 0.002), and WPR (slope = 0.001, 95% CI: -0.283 to 0.286), the GDP slope does not differ significantly from zero. These null associations may arise because countries in these regions have largely decoupled measles control from national income - either through universal vaccination policies or regional elimination programs that operate independently of a country's wealth level.
 
-
-### Results
-
-The regression results reinforce the patterns seen earlier in the report. Log GDP per capita carries a strong negative coefficient: holding climate, tourism, and urbanization constant, wealthier countries report systematically lower measles rates per 100,000 — the same gradient that produced the divergent trajectories of the richest and poorest five countries in Figure 3 and the negatively-sloped band in Figure 4. Mean temperature is positively associated with measles, consistent with the regional density patterns in Figure 2 and the seasonal contrast between India and Indonesia in Table 1. The positive coefficient on log tourists needs further analysis but may be because tourism creates importation pathways for measles, and tourism-heavy countries tend to maintain stronger surveillance systems that detect more cases. Urban population shows a negative association, hinting that more concentrated populations may receive vaccination and clinical care more efficiently than dispersed ones.
+**Post-Hoc Tukey Pairwise Comparisons**     
+To formally test which pairs of regions differ in their GDP-measles slopes, we conducted Tukey-corrected pairwise comparisons of the regional GDP slopes (Table 8). These tests identified three significant contrasts. The GDP slope for EMR differed significantly from both AMR (p = 0.004) and WPR (p = 0.003), confirming that the strong negative association between wealth and measles in the Eastern Mediterranean region stands in contrast to the near-zero or positive slopes observed in those two regions. Additionally, the EMR slope differed significantly from EUR (p = 0.013), though the EUR slope itself was marginally non-significant. Several other contrasts - including AFR vs. AMR, AMR vs. SEAR, and SEAR vs. WPR - approach but do not cross the corrected significance threshold, suggesting there may be additional regional differences that the study is underpowered to detect.
 
 
 ## Discussion    
 
-Taken together, the three analyses — seasonal/regional, economic, and the joint regression — point to the same conclusion from different angles: measles burden is concentrated in lower-income, warmer countries, and over the 2012–2025 window the case-rate gap between rich and poor countries has widened rather than closed.
+Taken together, these findings paint a nuanced picture of the global measles burden. Economic development is a meaningful protective factor in lower-income regions such as AFR, EMR, and SEAR, where the healthcare and public health investments that accompany rising GDP likely translate directly into improved vaccine coverage and disease control. In higher-income regions like AMR, EUR, and WPR, however, other structural factors appear to have largely supplanted income as a determinant of measles rates. The strong and consistent effects of tourism and year further underscore the importance of cross-border disease dynamics and surveillance capacity in shaping the observed distribution of measles globally.
 
 The global measles picture from 2012 to 2025 is one of widening inequality rather than steady progress. Climate and seasonality help explain *when* outbreaks happen, but economic and demographic conditions explain *where* they take hold and how severe they become. Future work should incorporate vaccination-coverage data directly, model the temporal dynamics that our cross-sectional country variables obscure, and revisit the CO₂–measles association.
